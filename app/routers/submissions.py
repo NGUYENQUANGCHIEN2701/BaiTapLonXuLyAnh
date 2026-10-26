@@ -44,12 +44,12 @@ def _get_sub(db: Session, user: User, sub_id: int) -> Submission:
 
 
 @router.post("/exams/{exam_id}/submissions", response_model=list[SubmissionBrief])
-async def upload(exam_id: int, files: list[UploadFile] = File(...), user: User = Depends(current_user),
+def upload(exam_id: int, files: list[UploadFile] = File(...), user: User = Depends(current_user),
                  db: Session = Depends(get_db)):
     exam = get_exam_for(user, exam_id, db)
     out = []
     for f in files:
-        data = await f.read()
+        data = f.file.read()
         if len(data) > MAX_UPLOAD:
             raise HTTPException(413, f"{f.filename}: file quá lớn (tối đa 40MB)")
         try:

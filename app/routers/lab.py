@@ -61,10 +61,10 @@ def _alignment_view(warped: np.ndarray, sheet: L.SheetLayout, shifts: dict, ppm:
 
 
 @router.post("/lab/analyze")
-async def analyze(file: UploadFile = File(...), num_questions: int | None = Form(None), num_options: int | None = Form(None),
+def analyze(file: UploadFile = File(...), num_questions: int | None = Form(None), num_options: int | None = Form(None),
                   _: User = Depends(current_user)):
     try:
-        image = load_image_bytes(await file.read())[0]
+        image = load_image_bytes(file.file.read())[0]
     except ValueError as e:
         raise HTTPException(400, str(e))
     cfg = ReaderConfig()
@@ -150,9 +150,9 @@ def sample(seed: int = 0, strength: float = 1.0, questions: int = 40, _: User = 
 
 
 @router.post("/lab/detect")
-async def detect(file: UploadFile = File(...), _: User = Depends(current_user)):
+def detect(file: UploadFile = File(...), _: User = Depends(current_user)):
     """Phát hiện nhanh 4 marker trên khung hình webcam -> tọa độ chuẩn hóa (0..1) để vẽ khung."""
-    data = await file.read()
+    data = file.file.read()
     img = cv2.imdecode(np.frombuffer(data, np.uint8), cv2.IMREAD_COLOR)
     if img is None:
         raise HTTPException(400, "Ảnh không hợp lệ")

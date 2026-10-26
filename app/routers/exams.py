@@ -169,10 +169,10 @@ def delete_key(exam_id: int, key_id: int, user: User = Depends(current_user), db
 
 
 @router.post("/{exam_id}/keys/import")
-async def import_keys(exam_id: int, file: UploadFile = File(...), user: User = Depends(current_user),
+def import_keys(exam_id: int, file: UploadFile = File(...), user: User = Depends(current_user),
                       db: Session = Depends(get_db)):
     exam = get_exam_for(user, exam_id, db)
-    rows = excel.read_table(await file.read(), file.filename or "")
+    rows = excel.read_table(file.file.read(), file.filename or "")
     keys, errors = excel.parse_keys(rows, exam.num_questions)
     for code, answers in keys.items():
         answers = _check_key(exam, answers)
@@ -187,12 +187,12 @@ async def import_keys(exam_id: int, file: UploadFile = File(...), user: User = D
 
 
 @router.post("/{exam_id}/keys/from-sheet")
-async def key_from_sheet(exam_id: int, file: UploadFile = File(...), user: User = Depends(current_user),
+def key_from_sheet(exam_id: int, file: UploadFile = File(...), user: User = Depends(current_user),
                          db: Session = Depends(get_db)):
     """Giáo viên tô đáp án lên một phiếu trắng rồi chụp -> hệ thống đọc thành bộ đáp án."""
     exam = get_exam_for(user, exam_id, db)
     try:
-        img = load_image_bytes(await file.read())[0]
+        img = load_image_bytes(file.file.read())[0]
         code, answers, r = answers_from_sheet(exam, img)
     except ValueError as e:
         raise HTTPException(400, str(e))
@@ -264,10 +264,10 @@ def delete_student(exam_id: int, student_id: int, user: User = Depends(current_u
 
 
 @router.post("/{exam_id}/students/import")
-async def import_students(exam_id: int, file: UploadFile = File(...), replace: bool = False,
+def import_students(exam_id: int, file: UploadFile = File(...), replace: bool = False,
                           user: User = Depends(current_user), db: Session = Depends(get_db)):
     exam = get_exam_for(user, exam_id, db)
-    rows = excel.read_table(await file.read(), file.filename or "")
+    rows = excel.read_table(file.file.read(), file.filename or "")
     parsed, errors = excel.parse_students(rows)
     if replace:
         for st in db.scalars(select(Student).where(Student.exam_id == exam.id)):
