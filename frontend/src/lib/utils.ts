@@ -51,9 +51,9 @@ export const FLAG_LABEL: Record<string, string> = {
 export function scoreColor(score: number | null | undefined, max = 10): string {
   if (score === null || score === undefined) return "text-slate-400";
   const r = score / max;
-  if (r >= 0.8) return "text-emerald-600";
-  if (r >= 0.5) return "text-brand-700";
-  return "text-rose-600";
+  if (r >= 0.8) return "text-[#1e6b3a]";
+  if (r >= 0.5) return "text-slate-900";
+  return "text-mark";
 }
 
 export function downloadUrl(url: string) {
