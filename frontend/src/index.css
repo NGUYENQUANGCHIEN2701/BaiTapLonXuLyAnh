@@ -1,20 +1,79 @@
 @import "tailwindcss";
 
+/*
+  Ngôn ngữ thiết kế "giấy & mực": nền giấy ấm, chữ mực đen, một màu nhấn đỏ son (bút chấm bài).
+  - slate: ghi đè bằng thang xám ấm (stone) để mọi chỗ dùng slate-* đều đổi tông.
+  - brand: thang màu mực (gần đen) cho nút chính, trạng thái đang chọn, liên kết.
+  - mark: đỏ son, chỉ dùng điểm xuyết (logo, vạch đang chọn, điểm nhấn).
+*/
 @theme {
   --font-sans: "Be Vietnam Pro", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --color-brand-50: #eff4ff;
-  --color-brand-100: #dbe6fe;
-  --color-brand-200: #bfd3fe;
-  --color-brand-300: #93b4fd;
-  --color-brand-400: #608bfa;
-  --color-brand-500: #3b66f5;
-  --color-brand-600: #2547ea;
-  --color-brand-700: #1d36d7;
-  --color-brand-800: #1e2fae;
-  --color-brand-900: #1e2e89;
-  --color-brand-950: #171e53;
-  --shadow-card: 0 1px 2px rgb(15 23 42 / 0.04), 0 1px 3px rgb(15 23 42 / 0.06);
-  --shadow-pop: 0 10px 30px -10px rgb(15 23 42 / 0.25);
+  --font-serif: "Source Serif 4", "Source Serif Pro", Georgia, "Times New Roman", serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+
+  --color-slate-50: #faf9f6;
+  --color-slate-100: #f3f1ec;
+  --color-slate-200: #e5e2da;
+  --color-slate-300: #d3cfc4;
+  --color-slate-400: #a39e91;
+  --color-slate-500: #77736a;
+  --color-slate-600: #58554e;
+  --color-slate-700: #433f39;
+  --color-slate-800: #2b2925;
+  --color-slate-900: #1d1c19;
+  --color-slate-950: #0f0e0c;
+
+  --color-brand-50: #f3f2ee;
+  --color-brand-100: #e8e6df;
+  --color-brand-200: #d3d0c5;
+  --color-brand-300: #b3ae9f;
+  --color-brand-400: #8a8576;
+  --color-brand-500: #5f5b50;
+  --color-brand-600: #3f3c35;
+  --color-brand-700: #24231f;
+  --color-brand-800: #171613;
+  --color-brand-900: #0f0e0c;
+  --color-brand-950: #080807;
+
+
+  /* màu ngữ nghĩa: đúng = xanh lá mực, sai = đỏ son, cần xem = vàng đất */
+  --color-emerald-50: #eef5f0;
+  --color-emerald-100: #dcebe1;
+  --color-emerald-200: #b8d6c2;
+  --color-emerald-300: #8cbb9c;
+  --color-emerald-400: #5c9a71;
+  --color-emerald-500: #357a4e;
+  --color-emerald-600: #1e6b3a;
+  --color-emerald-700: #185a30;
+  --color-emerald-800: #144a28;
+  --color-emerald-900: #103b20;
+  --color-rose-50: #fcefeb;
+  --color-rose-100: #f8ddd5;
+  --color-rose-200: #f0b9aa;
+  --color-rose-300: #e48d77;
+  --color-rose-400: #d6654a;
+  --color-rose-500: #c8401f;
+  --color-rose-600: #b3381b;
+  --color-rose-700: #952e16;
+  --color-rose-800: #772512;
+  --color-rose-900: #5c1d0e;
+  --color-amber-50: #fbf5e6;
+  --color-amber-100: #f6e9c7;
+  --color-amber-200: #ecd391;
+  --color-amber-300: #e0b95a;
+  --color-amber-400: #d4a02f;
+  --color-amber-500: #c08a14;
+  --color-amber-600: #9a6c0b;
+  --color-amber-700: #7c5300;
+  --color-amber-800: #5f4000;
+  --color-amber-900: #463000;
+
+  --color-paper: #f4f2ec;
+  --color-mark: #c8401f;
+  --color-mark-soft: #fbe9e3;
+
+  --shadow-card: none;
+  --shadow-pop: 0 12px 32px -12px rgb(29 28 25 / 0.28), 0 2px 6px -2px rgb(29 28 25 / 0.12);
 }
 
 html,
@@ -24,26 +83,36 @@ body,
 }
 
 body {
-  @apply bg-slate-50 text-slate-800 antialiased;
-  font-feature-settings: "tnum" 0;
+  background: var(--color-paper);
+  color: var(--color-slate-900);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: #ffe58a;
+  color: var(--color-slate-900);
 }
 
 .tabular {
   font-variant-numeric: tabular-nums;
 }
 
-/* thanh cuộn gọn */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: rgb(203 213 225) transparent;
+/* tiêu đề trang dùng chữ có chân cho cảm giác "văn bản" thay vì "dashboard mẫu" */
+.font-display {
+  font-family: var(--font-serif);
+  font-optical-sizing: auto;
+  letter-spacing: -0.01em;
 }
 
-@keyframes fade-in {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: none; }
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-slate-300) transparent;
 }
+
+/* giữ tên lớp cũ nhưng không còn hiệu ứng trượt */
 .animate-fade-in {
-  animation: fade-in 0.18s ease-out;
+  animation: none;
 }
 
 @keyframes scan-line {

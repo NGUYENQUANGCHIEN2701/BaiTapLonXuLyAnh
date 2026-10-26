@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@fontsource/be-vietnam-pro": "5.2.5",
+    "@fontsource/ibm-plex-mono": "5.2.5",
+    "@fontsource/source-serif-4": "5.2.5",
     "@tanstack/react-query": "5.80.7",
     "clsx": "2.1.1",
     "lucide-react": "0.515.0",
