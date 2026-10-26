@@ -4,6 +4,9 @@ Bài tập lớn môn **Xử lý ảnh**. Hệ thống web cho phép giáo viên
 (điện thoại, webcam, máy scan, PDF) và **chấm tự động bằng xử lý ảnh (OpenCV)**, kèm duyệt bài nghi vấn, thống kê
 và phân tích câu hỏi.
 
+> Kiến trúc chi tiết (sơ đồ tầng, mô hình dữ liệu, các luồng nghiệp vụ, từng bước xử lý ảnh, API):
+> [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+
 ## Tính năng
 
 | Nhóm | Chức năng |
