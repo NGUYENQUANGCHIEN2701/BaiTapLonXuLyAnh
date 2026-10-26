@@ -1,16 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import {
-  ChevronRight,
-  ClipboardList,
-  FlaskConical,
-  KeyRound,
-  LayoutDashboard,
-  LogOut,
-  Menu,
-  ScanLine,
-  Users as UsersIcon,
-  X,
-} from "lucide-react";
+import { ClipboardList, FlaskConical, LayoutGrid, Menu, Users as UsersIcon, X } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -20,21 +9,38 @@ import type { Exam } from "../lib/types";
 import { cn } from "../lib/utils";
 import { Button, Field, Input, Modal } from "./ui";
 
-function NavItem({ to, icon, label, end, badge }: { to: string; icon: ReactNode; label: string; end?: boolean; badge?: number }) {
+/** Biểu tượng: 4 marker góc như trên phiếu thật, ô góc trên-trái rỗng. */
+export function SheetMark({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 20 20" className={className} aria-hidden>
+      <rect x="1" y="1" width="18" height="18" rx="2" fill="none" stroke="currentColor" strokeWidth="1.2" />
+      <rect x="3.5" y="3.5" width="4" height="4" fill="currentColor" />
+      <rect x="4.9" y="4.9" width="1.2" height="1.2" fill="#fff" />
+      <rect x="12.5" y="3.5" width="4" height="4" fill="currentColor" />
+      <rect x="3.5" y="12.5" width="4" height="4" fill="currentColor" />
+      <rect x="12.5" y="12.5" width="4" height="4" fill="currentColor" />
+      <circle cx="10" cy="10" r="1.8" fill="var(--color-mark)" />
+    </svg>
+  );
+}
+
+function NavItem({ to, icon, label, end, count }: { to: string; icon: ReactNode; label: string; end?: boolean; count?: number }) {
   return (
     <NavLink
       to={to}
       end={end}
       className={({ isActive }) =>
         cn(
-          "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-          isActive ? "bg-white/10 text-white" : "text-brand-100/80 hover:bg-white/5 hover:text-white",
+          "relative flex items-center gap-2.5 rounded-md px-3 py-[7px] text-[14px] transition-colors [&_svg]:h-4 [&_svg]:w-4",
+          isActive
+            ? "bg-white font-medium text-slate-900 shadow-[0_0_0_1px_var(--color-slate-200)] before:absolute before:inset-y-1.5 before:-left-3 before:w-[3px] before:rounded-r before:bg-mark [&_svg]:text-slate-900"
+            : "text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 [&_svg]:text-slate-400",
         )
       }
     >
-      <span className="shrink-0 [&>svg]:h-[18px] [&>svg]:w-[18px]">{icon}</span>
+      {icon}
       <span className="truncate">{label}</span>
-      {!!badge && <span className="ml-auto rounded-full bg-amber-400 px-1.5 text-[11px] font-semibold text-amber-950">{badge}</span>}
+      {!!count && <span className="ml-auto text-[12px] font-medium tabular text-mark">{count}</span>}
     </NavLink>
   );
 }
@@ -98,67 +104,56 @@ export default function Layout() {
   useEffect(() => setMobileOpen(false), [loc.pathname]);
 
   const sidebar = (
-    <div className="flex h-full flex-col bg-gradient-to-b from-brand-950 to-[#121845] px-3 py-4">
-      <div className="mb-6 flex items-center gap-3 px-2">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10 ring-1 ring-white/20">
-          <ScanLine className="h-5 w-5 text-white" />
-        </div>
-        <div className="leading-tight">
-          <div className="font-bold text-white">OMR Exam</div>
-          <div className="text-[11px] text-brand-200/70">Quản lý thi & chấm trắc nghiệm</div>
-        </div>
+    <div className="flex h-full flex-col border-r border-slate-200 bg-paper px-3 py-5">
+      <div className="mb-7 flex items-center gap-2.5 px-3">
+        <SheetMark className="h-6 w-6 text-slate-900" />
+        <span className="font-display text-[19px] font-semibold tracking-tight text-slate-900">OMR Exam</span>
       </div>
-      <nav className="space-y-1">
-        <NavItem to="/" end icon={<LayoutDashboard />} label="Tổng quan" />
-        <NavItem to="/exams" icon={<ClipboardList />} label="Kỳ thi" badge={reviewTotal} />
-        <NavItem to="/lab" icon={<FlaskConical />} label="Phòng thí nghiệm XLA" />
+      <nav className="space-y-0.5">
+        <NavItem to="/" end icon={<LayoutGrid />} label="Tổng quan" />
+        <NavItem to="/exams" icon={<ClipboardList />} label="Kỳ thi" count={reviewTotal} />
+        <NavItem to="/lab" icon={<FlaskConical />} label="Phòng thí nghiệm" />
         {user?.role === "admin" && <NavItem to="/users" icon={<UsersIcon />} label="Người dùng" />}
       </nav>
       {!!exams?.length && (
-        <div className="mt-6">
-          <div className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-brand-200/50">Kỳ thi gần đây</div>
-          <div className="space-y-0.5">
+        <div className="mt-8">
+          <div className="px-3 pb-2 text-[12px] text-slate-500">Kỳ thi gần đây</div>
+          <div className="space-y-px">
             {exams.slice(0, 6).map((e) => (
               <NavLink
                 key={e.id}
                 to={`/exams/${e.id}`}
                 className={({ isActive }) =>
                   cn(
-                    "flex items-center gap-2 rounded-md px-3 py-1.5 text-[13px] transition-colors",
-                    isActive ? "bg-white/10 text-white" : "text-brand-100/70 hover:bg-white/5 hover:text-white",
+                    "flex items-baseline gap-2 rounded-md px-3 py-1.5 text-[13px] transition-colors",
+                    isActive ? "bg-white text-slate-900 shadow-[0_0_0_1px_var(--color-slate-200)]" : "text-slate-600 hover:text-slate-900",
                   )
                 }
               >
-                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand-400" />
                 <span className="truncate">{e.name}</span>
-                {e.num_review > 0 && <span className="ml-auto text-[11px] text-amber-300">{e.num_review}</span>}
+                {e.num_review > 0 && <span className="ml-auto shrink-0 text-[11px] tabular text-mark">{e.num_review}</span>}
               </NavLink>
             ))}
           </div>
         </div>
       )}
-      <div className="mt-auto rounded-xl bg-white/5 p-3 ring-1 ring-white/10">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-500 text-sm font-semibold text-white">
-            {(user?.full_name || user?.username || "?").trim().split(" ").pop()?.[0]?.toUpperCase()}
-          </div>
-          <div className="min-w-0 flex-1 leading-tight">
-            <div className="truncate text-sm font-medium text-white">{user?.full_name || user?.username}</div>
-            <div className="text-[11px] text-brand-200/70">{user?.role === "admin" ? "Quản trị viên" : "Giáo viên"}</div>
-          </div>
+      <div className="mt-auto border-t border-slate-200 px-3 pt-4">
+        <div className="truncate text-[13px] font-medium text-slate-900">{user?.full_name || user?.username}</div>
+        <div className="text-[12px] text-slate-500">
+          {user?.username} · {user?.role === "admin" ? "quản trị" : "giáo viên"}
         </div>
-        <div className="mt-3 flex gap-1">
-          <button onClick={() => setPwOpen(true)} className="flex flex-1 items-center justify-center gap-1.5 rounded-md py-1.5 text-xs text-brand-100/80 hover:bg-white/10 hover:text-white">
-            <KeyRound className="h-3.5 w-3.5" /> Mật khẩu
+        <div className="mt-2.5 flex gap-3 text-[12px]">
+          <button onClick={() => setPwOpen(true)} className="text-slate-600 underline-offset-2 hover:text-slate-900 hover:underline">
+            Đổi mật khẩu
           </button>
           <button
             onClick={async () => {
               await logout();
               nav("/login");
             }}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-md py-1.5 text-xs text-brand-100/80 hover:bg-white/10 hover:text-white"
+            className="text-slate-600 underline-offset-2 hover:text-slate-900 hover:underline"
           >
-            <LogOut className="h-3.5 w-3.5" /> Đăng xuất
+            Đăng xuất
           </button>
         </div>
       </div>
@@ -167,26 +162,26 @@ export default function Layout() {
 
   return (
     <div className="flex h-full">
-      <aside className="hidden w-64 shrink-0 lg:block">{sidebar}</aside>
+      <aside className="hidden w-60 shrink-0 lg:block">{sidebar}</aside>
       {mobileOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
-          <div className="absolute inset-0 bg-slate-900/50" onClick={() => setMobileOpen(false)} />
-          <div className="relative h-full w-64">{sidebar}</div>
-          <button className="absolute left-[16.5rem] top-4 rounded-full bg-white p-1.5" onClick={() => setMobileOpen(false)}>
+          <div className="absolute inset-0 bg-slate-900/30" onClick={() => setMobileOpen(false)} />
+          <div className="relative h-full w-60">{sidebar}</div>
+          <button className="absolute left-[15.5rem] top-4 rounded-md border border-slate-300 bg-white p-1.5" onClick={() => setMobileOpen(false)}>
             <X className="h-5 w-5" />
           </button>
         </div>
       )}
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-14 items-center gap-3 border-b border-slate-200 bg-white px-4 lg:hidden">
-          <button onClick={() => setMobileOpen(true)} className="rounded-lg p-1.5 hover:bg-slate-100">
+        <header className="flex h-14 items-center gap-3 border-b border-slate-200 bg-paper px-4 lg:hidden">
+          <button onClick={() => setMobileOpen(true)} className="rounded-md p-1.5 hover:bg-slate-200/60">
             <Menu className="h-5 w-5" />
           </button>
-          <span className="font-semibold">OMR Exam</span>
-          <ChevronRight className="h-4 w-4 text-slate-300" />
+          <SheetMark className="h-5 w-5" />
+          <span className="font-display text-lg font-semibold">OMR Exam</span>
         </header>
         <main className="flex-1 overflow-y-auto">
-          <div className="mx-auto max-w-[1400px] px-4 py-6 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-[1360px] px-4 py-7 sm:px-6 lg:px-10">
             <Outlet />
           </div>
         </main>
