@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# dữ liệu chạy thử (CSDL, ảnh tải lên, khóa phiên)
+data/
+
+# bộ dữ liệu sinh tự động (sinh lại bằng: python -m tools.evaluate)
+dataset/synthetic/
+dataset/_omrchecker_run/
+
+# repo tham khảo (clone lại bằng git clone https://github.com/Udayraj123/OMRChecker reference/OMRChecker)
+reference/
+
+frontend/node_modules/
+frontend/dist/
