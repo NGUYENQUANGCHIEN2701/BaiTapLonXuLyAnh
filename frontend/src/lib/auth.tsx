@@ -29,12 +29,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     user: isLoading ? undefined : (data ?? null),
     login: async (username, password) => {
       const u = await api.post<User>("/api/auth/login", { username, password });
-      qc.clear();
+      // Không dùng qc.clear(): nó xóa luôn query "me" mà AuthProvider đang theo dõi,
+      // khiến giao diện không biết đã đăng nhập. Chỉ bỏ dữ liệu của phiên trước.
+      qc.removeQueries({ predicate: (q) => q.queryKey[0] !== "me" });
       qc.setQueryData(["me"], u);
     },
     logout: async () => {
       await api.post("/api/auth/logout");
-      qc.clear();
+      qc.removeQueries({ predicate: (q) => q.queryKey[0] !== "me" });
       qc.setQueryData(["me"], null);
     },
   };
