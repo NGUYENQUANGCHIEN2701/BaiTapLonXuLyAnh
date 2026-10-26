@@ -80,7 +80,7 @@ function UploadMode({ exam }: { exam: Exam }) {
   return (
     <div className="space-y-6">
       <Dropzone accept="image/*,.pdf" onFiles={add} className="px-6 py-12 text-center">
-        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-brand-100 text-brand-700">
+        <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center text-slate-500">
           <Upload className="h-6 w-6" />
         </div>
         <p className="font-medium text-slate-800">Kéo thả ảnh phiếu vào đây, hoặc bấm để chọn</p>
@@ -123,7 +123,7 @@ function UploadMode({ exam }: { exam: Exam }) {
                   ) : it.state === "error" ? (
                     <XCircle className="h-5 w-5 shrink-0 text-rose-500" />
                   ) : it.state === "uploading" ? (
-                    <Loader2 className="h-5 w-5 shrink-0 animate-spin text-brand-600" />
+                    <Loader2 className="h-5 w-5 shrink-0 animate-spin text-slate-500" />
                   ) : (
                     <FileImage className="h-5 w-5 shrink-0 text-slate-300" />
                   )}

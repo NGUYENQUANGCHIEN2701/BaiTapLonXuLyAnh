@@ -1,4 +1,4 @@
-import { Camera, FileText, Lightbulb, Printer, UserSquare2 } from "lucide-react";
+import { Camera, FileText, Printer, UserSquare2 } from "lucide-react";
 import { useState } from "react";
 import { Button, Card, CardHeader, Field, Input, Spinner } from "../../components/ui";
 import { useExam } from "./ExamLayout";
@@ -34,7 +34,7 @@ export default function Sheets() {
           <div className="space-y-5 p-5">
             <div>
               <div className="mb-2 flex items-center gap-2 font-medium text-slate-800">
-                <FileText className="h-4 w-4 text-brand-600" /> Phiếu trắng
+                <FileText className="h-4 w-4 text-slate-500" /> Phiếu trắng
               </div>
               <div className="flex items-end gap-2">
                 <Field label="Số bản" className="w-24">
@@ -47,7 +47,7 @@ export default function Sheets() {
             </div>
             <div className="border-t border-slate-100 pt-5">
               <div className="mb-1 flex items-center gap-2 font-medium text-slate-800">
-                <UserSquare2 className="h-4 w-4 text-brand-600" /> Phiếu cá nhân hóa
+                <UserSquare2 className="h-4 w-4 text-slate-500" /> Phiếu cá nhân hóa
               </div>
               <p className="mb-3 text-sm text-slate-500">
                 Mỗi thí sinh một trang, in sẵn họ tên, lớp, phòng và <b>tô sẵn SBD</b> — loại bỏ lỗi tô sai số báo danh.
@@ -61,7 +61,7 @@ export default function Sheets() {
 
         <Card className="p-5">
           <div className="mb-3 flex items-center gap-2 font-medium text-slate-800">
-            <Lightbulb className="h-4 w-4 text-amber-500" /> Lưu ý khi in & chụp
+            Lưu ý khi in và chụp
           </div>
           <ul className="space-y-2 text-sm text-slate-600">
             <li>• In đúng tỉ lệ 100% (tắt “Fit to page”), giấy trắng, mực đen.</li>

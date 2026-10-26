@@ -15,17 +15,17 @@ function ThresholdChart({ step }: { step: LabStep }) {
         <AreaChart data={data} margin={{ left: -12, right: 12, top: 8 }}>
           <defs>
             <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#2547ea" stopOpacity={0.35} />
-              <stop offset="100%" stopColor="#2547ea" stopOpacity={0.02} />
+              <stop offset="0%" stopColor="#24231f" stopOpacity={0.18} />
+              <stop offset="100%" stopColor="#24231f" stopOpacity={0.02} />
             </linearGradient>
           </defs>
           <CartesianGrid stroke="#eef2f7" />
           <XAxis dataKey="i" tick={{ fontSize: 11 }} label={{ value: "Thứ tự ô (đã sắp xếp)", position: "insideBottom", offset: -2, fontSize: 11 }} height={36} />
           <YAxis domain={[0, 255]} tick={{ fontSize: 11 }} />
           <Tooltip formatter={(v: number) => [v, "Độ sáng"]} labelFormatter={(l) => `Ô #${l}`} />
-          <Area type="stepAfter" dataKey="v" stroke="#2547ea" fill="url(#g)" strokeWidth={2} isAnimationActive={false} />
+          <Area type="stepAfter" dataKey="v" stroke="#24231f" fill="url(#g)" strokeWidth={1.5} isAnimationActive={false} />
           {step.threshold !== undefined && (
-            <ReferenceLine y={step.threshold} stroke="#e11d48" strokeWidth={2} strokeDasharray="6 4" label={{ value: `Ngưỡng ${step.threshold}`, fill: "#e11d48", fontSize: 12, position: "insideTopLeft" }} />
+            <ReferenceLine y={step.threshold} stroke="#c8401f" strokeWidth={1.5} strokeDasharray="6 4" label={{ value: `Ngưỡng ${step.threshold}`, fill: "#c8401f", fontSize: 12, position: "insideTopLeft" }} />
           )}
         </AreaChart>
       </ResponsiveContainer>
@@ -85,7 +85,7 @@ export default function Lab() {
         <div className="space-y-4 lg:sticky lg:top-6 lg:self-start">
           <Card className="p-4">
             <Dropzone accept="image/*,.pdf" multiple={false} onFiles={(f) => analyze(f[0], f[0].name)} className="p-6 text-center">
-              <ImageUp className="mx-auto mb-2 h-8 w-8 text-brand-600" />
+              <ImageUp className="mx-auto mb-2 h-7 w-7 text-slate-500" />
               <p className="text-sm font-medium text-slate-700">Chọn ảnh phiếu để phân tích</p>
               <p className="mt-1 text-xs text-slate-500">hoặc kéo thả vào đây</p>
             </Dropzone>
@@ -97,7 +97,7 @@ export default function Lab() {
                 <Input type="number" min={1} max={120} value={nq} onChange={(e) => setNq(Math.max(1, Math.min(120, Number(e.target.value) || 1)))} />
               </Field>
               <Field label={`Độ khó ảnh: ${strength.toFixed(1)}`} hint="Nghiêng, bóng, mờ">
-                <input type="range" min={0} max={1.6} step={0.1} value={strength} onChange={(e) => setStrength(Number(e.target.value))} className="mt-2 w-full accent-brand-600" />
+                <input type="range" min={0} max={1.6} step={0.1} value={strength} onChange={(e) => setStrength(Number(e.target.value))} className="mt-2 w-full accent-slate-900" />
               </Field>
             </div>
             <Button variant="secondary" className="mt-3 w-full" icon={<Dices className="h-4 w-4" />} onClick={sample} disabled={busy}>
@@ -156,10 +156,10 @@ export default function Lab() {
             </Card>
           )}
           {result && (
-            <ol className="relative space-y-6 border-l-2 border-brand-100 pl-6">
+            <ol className="relative space-y-6 border-l border-slate-300 pl-6">
               {result.steps.map((s, i) => (
                 <li key={s.key} className="relative">
-                  <span className="absolute -left-[37px] flex h-7 w-7 items-center justify-center rounded-full bg-brand-700 text-xs font-bold text-white ring-4 ring-slate-50">{i + 1}</span>
+                  <span className="absolute -left-[37px] flex h-6 w-6 items-center justify-center rounded-full border border-slate-900 bg-paper font-mono text-[11px] text-slate-900">{i + 1}</span>
                   <Card>
                     <CardHeader
                       title={s.title}

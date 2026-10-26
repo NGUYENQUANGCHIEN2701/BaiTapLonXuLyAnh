@@ -46,7 +46,7 @@ export default function Users() {
         actions={<Button icon={<Plus className="h-4 w-4" />} onClick={() => setOpen(true)}>Thêm tài khoản</Button>} />
       <Card className="overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
+          <thead className="border-b border-slate-200 text-left text-[12px] text-slate-500 [&_th]:font-normal">
             <tr>
               <th className="px-5 py-2.5">Tên đăng nhập</th>
               <th className="px-5 py-2.5">Họ tên</th>

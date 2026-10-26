@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  AlertTriangle,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
@@ -64,8 +63,8 @@ function SheetOverlay({
                   cy={y}
                   r={it.radius + 1}
                   className="cursor-pointer"
-                  fill={on ? "rgba(37,71,234,0.45)" : "transparent"}
-                  stroke={on ? "#2547ea" : "transparent"}
+                  fill={on ? "rgba(42,67,101,0.42)" : "transparent"}
+                  stroke={on ? "#2a4365" : "transparent"}
                   strokeWidth={2}
                   onClick={() => onDigit(it.block as "sbd" | "code", pos, it.labels[i])}
                   onMouseEnter={() => setHover({ x, y, text: `${it.block === "sbd" ? "SBD" : "Mã đề"} vị trí ${pos + 1} = ${it.labels[i]} · độ sáng ${it.values[i]}` })}
@@ -89,8 +88,8 @@ function SheetOverlay({
                   width={Math.max(...xs) - Math.min(...xs) + it.radius * 4.4}
                   height={it.radius * 3}
                   rx={6}
-                  fill={focusQ === q ? "rgba(37,71,234,0.08)" : "rgba(245,158,11,0.10)"}
-                  stroke={focusQ === q ? "#2547ea" : "#f59e0b"}
+                  fill={focusQ === q ? "rgba(29,28,25,0.06)" : "rgba(192,138,20,0.10)"}
+                  stroke={focusQ === q ? "#1d1c19" : "#c08a14"}
                   strokeWidth={2}
                   strokeDasharray={focusQ === q ? undefined : "6 4"}
                 />
@@ -99,18 +98,18 @@ function SheetOverlay({
                 const opt = it.labels[i];
                 const chosen = a.includes(opt);
                 const isKey = k.includes(opt);
-                const fill = chosen ? (key ? (a === k ? "rgba(5,150,105,0.5)" : "rgba(225,29,72,0.5)") : "rgba(30,41,59,0.45)") : "transparent";
+                const fill = chosen ? (key ? (a === k ? "rgba(30,107,58,0.5)" : "rgba(200,64,31,0.5)") : "rgba(29,28,25,0.45)") : "transparent";
                 return (
                   <g key={i}>
-                    {isKey && !chosen && <circle cx={x} cy={y} r={it.radius + 2.5} fill="none" stroke="#059669" strokeWidth={3} />}
+                    {isKey && !chosen && <circle cx={x} cy={y} r={it.radius + 2.5} fill="none" stroke="#1e6b3a" strokeWidth={3} />}
                     <circle
                       cx={x}
                       cy={y}
                       r={it.radius + 1}
                       fill={fill}
-                      stroke={chosen ? (key ? (a === k ? "#059669" : "#e11d48") : "#1e293b") : "transparent"}
+                      stroke={chosen ? (key ? (a === k ? "#1e6b3a" : "#c8401f") : "#1d1c19") : "transparent"}
                       strokeWidth={2}
-                      className="cursor-pointer hover:stroke-brand-500"
+                      className="cursor-pointer hover:stroke-slate-900"
                       onClick={(e) => onToggle(q, opt, e.shiftKey || e.ctrlKey)}
                       onMouseEnter={() => setHover({ x, y, text: `Câu ${q + 1}${opt} · độ sáng ${it.values[i]} · ngưỡng ${it.threshold}${it.marked[i] ? " · máy đọc: tô" : ""}` })}
                       onMouseLeave={() => setHover(null)}
@@ -141,7 +140,7 @@ function HistoryModal({ subId, open, onClose }: { subId: number; open: boolean; 
     <Modal open={open} onClose={onClose} title="Lịch sử chỉnh sửa" size="lg">
       <ol className="space-y-4">
         {data?.map((a) => (
-          <li key={a.id} className="border-l-2 border-brand-200 pl-4">
+          <li key={a.id} className="border-l border-slate-300 pl-4">
             <div className="text-sm">
               <b>{a.user || "Hệ thống"}</b> · {label[a.action] ?? a.action} <span className="text-slate-400">· {fmtDate(a.created_at)}</span>
             </div>
@@ -210,7 +209,7 @@ function ReviewBody({ sub, exam }: { sub: Submission; exam: Exam }) {
         // sau khi duyệt: chuyển sang bài kế tiếp trong hàng đợi
         api.get<{ next: number | null; prev: number | null }>(`/api/submissions/${sub.id}/neighbors?status=review`).then((n) => {
           const target = n.next ?? n.prev;
-          toast.success(target ? "Đã duyệt — chuyển bài tiếp theo" : "Đã duyệt xong tất cả bài cần xem lại 🎉");
+          toast.success(target ? "Đã duyệt — chuyển bài tiếp theo" : "Đã duyệt xong tất cả bài cần xem lại");
           if (target && target !== sub.id) nav(`/submissions/${target}?queue=review`);
         });
       } else toast.success("Đã lưu");
@@ -335,7 +334,7 @@ function ReviewBody({ sub, exam }: { sub: Submission; exam: Exam }) {
                 <p className="text-sm text-slate-500">{sub.class_name || sub.source_name}</p>
               </div>
               <div className="text-right">
-                <div className={cn("text-4xl font-bold tabular", scoreColor(dirty ? liveScore : sub.score, exam.max_score))}>{fmtScore(dirty ? liveScore : sub.score)}</div>
+                <div className={cn("font-display text-[46px] leading-none tabular", scoreColor(dirty ? liveScore : sub.score, exam.max_score))}>{fmtScore(dirty ? liveScore : sub.score)}</div>
                 <div className="text-xs text-slate-500">
                   {(dirty ? liveCorrect : sub.num_correct) ?? "—"}/{exam.num_questions} câu đúng
                 </div>
@@ -368,7 +367,7 @@ function ReviewBody({ sub, exam }: { sub: Submission; exam: Exam }) {
 
           {(flags.length > 0 || warnings.length > 0 || sub.error) && (
             <Card>
-              <CardHeader title={<span className="flex items-center gap-2"><AlertTriangle className="h-4 w-4 text-amber-500" /> Cần chú ý ({flags.length})</span>} />
+              <CardHeader title={`Cần chú ý (${flags.length})`} />
               <ul className="max-h-56 divide-y divide-slate-100 overflow-y-auto">
                 {sub.error && <li className="px-5 py-2 text-sm text-rose-600">{sub.error}</li>}
                 {[...flags, ...warnings].map((f, i) => {

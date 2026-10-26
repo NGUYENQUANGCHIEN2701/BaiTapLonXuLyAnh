@@ -42,9 +42,9 @@ export default function Results() {
 
   const th = (key: SortKey, label: string, right = false) => (
     <th className={cn("px-4 py-2.5", right && "text-right")}>
-      <button className="inline-flex items-center gap-1 uppercase hover:text-slate-800" onClick={() => setSort((s) => ({ key, dir: s.key === key ? (-s.dir as 1 | -1) : -1 }))}>
+      <button className="inline-flex items-center gap-1 hover:text-slate-900" onClick={() => setSort((s) => ({ key, dir: s.key === key ? (-s.dir as 1 | -1) : -1 }))}>
         {label}
-        <ArrowDownUp className={cn("h-3 w-3", sort.key === key ? "text-brand-600" : "text-slate-300")} />
+        <ArrowDownUp className={cn("h-3 w-3", sort.key === key ? "text-slate-900" : "text-slate-300")} />
       </button>
     </th>
   );
@@ -84,18 +84,18 @@ export default function Results() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-slate-50 text-left text-xs font-medium tracking-wide text-slate-500">
+              <thead className="border-b border-slate-200 text-left text-[12px] text-slate-500 [&_th]:font-normal">
                 <tr>
                   {th("id", "#")}
                   {th("sbd", "SBD")}
-                  <th className="px-4 py-2.5 uppercase">Thí sinh</th>
-                  <th className="px-4 py-2.5 uppercase">Mã đề</th>
-                  <th className="px-4 py-2.5 text-right uppercase">Đúng</th>
+                  <th className="px-4 py-2.5">Thí sinh</th>
+                  <th className="px-4 py-2.5">Mã đề</th>
+                  <th className="px-4 py-2.5 text-right">Đúng</th>
                   {th("score", "Điểm", true)}
                   {th("confidence", "Tin cậy", true)}
-                  <th className="px-4 py-2.5 uppercase">Cảnh báo</th>
-                  <th className="px-4 py-2.5 uppercase">Trạng thái</th>
-                  <th className="px-4 py-2.5 uppercase">Thời gian</th>
+                  <th className="px-4 py-2.5">Cảnh báo</th>
+                  <th className="px-4 py-2.5">Trạng thái</th>
+                  <th className="px-4 py-2.5">Thời gian</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">

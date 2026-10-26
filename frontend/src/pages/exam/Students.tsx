@@ -114,7 +114,7 @@ export default function Students() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-slate-50 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
+              <thead className="border-b border-slate-200 text-left text-[12px] text-slate-500 [&_th]:font-normal">
                 <tr>
                   <th className="px-4 py-2.5">SBD</th>
                   <th className="px-4 py-2.5">Họ tên</th>

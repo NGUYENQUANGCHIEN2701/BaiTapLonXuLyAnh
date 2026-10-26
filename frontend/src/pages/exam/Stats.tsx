@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { BarChart3, Info, Trophy } from "lucide-react";
+import { BarChart3, Info } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -17,13 +17,13 @@ import {
   YAxis,
   ZAxis,
 } from "recharts";
-import { Badge, Card, CardHeader, Empty, PageLoader, Select, StatCard } from "../../components/ui";
+import { Badge, Card, CardHeader, Empty, PageLoader, Select, StatCard, StatStrip } from "../../components/ui";
 import { api } from "../../lib/api";
 import type { ExamStats, ItemStat } from "../../lib/types";
 import { cn, fmtPct, fmtScore } from "../../lib/utils";
 import { useExam } from "./ExamLayout";
 
-const OPT_COLORS = ["#2547ea", "#0ea5e9", "#8b5cf6", "#f59e0b", "#ec4899", "#14b8a6"];
+const OPT_COLORS = ["#5f5b50", "#8a8576", "#a39e91", "#77736a", "#b3ae9f", "#58554e"];
 
 function OptionBar({ it, options }: { it: ItemStat; options: string[] }) {
   const total = options.reduce((s, o) => s + it.options[o], 0) + it.blank + it.multi || 1;
@@ -36,8 +36,8 @@ function OptionBar({ it, options }: { it: ItemStat; options: string[] }) {
           <div
             key={o}
             title={`${o}: ${it.options[o]}`}
-            className={cn("flex items-center justify-center text-[10px] font-semibold text-white", o === it.key && "ring-2 ring-inset ring-emerald-300")}
-            style={{ width: `${w}%`, background: o === it.key ? "#059669" : OPT_COLORS[i] + "99" }}
+            className={cn("flex items-center justify-center text-[10px] font-semibold text-white", o === it.key && "font-bold")}
+            style={{ width: `${w}%`, background: o === it.key ? "#1e6b3a" : OPT_COLORS[i] }}
           >
             {w > 9 && o}
           </div>
@@ -72,13 +72,13 @@ export default function Stats() {
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <StatStrip>
         <StatCard label="Số bài có điểm" value={o.scored} hint={o.roster ? `${o.absent} thí sinh chưa có bài` : undefined} />
-        <StatCard label="Điểm trung bình" value={fmtScore(o.mean)} hint={`Trung vị ${fmtScore(o.median)} · độ lệch ${fmtScore(o.stdev)}`} tone="violet" />
-        <StatCard label="Cao nhất / thấp nhất" value={`${fmtScore(o.max)} / ${fmtScore(o.min)}`} tone="gray" />
-        <StatCard label="Tỉ lệ đạt" value={fmtPct(o.pass_rate, 1)} hint={`Điểm ≥ ${o.pass_score}`} tone="green" />
-        <StatCard label="Câu hỏi cần xem lại" value={bad.length} hint="Độ phân biệt < 0,2" tone="amber" />
-      </div>
+        <StatCard label="Điểm trung bình" value={fmtScore(o.mean)} hint={`Trung vị ${fmtScore(o.median)} · độ lệch ${fmtScore(o.stdev)}`} />
+        <StatCard label="Cao nhất / thấp nhất" value={`${fmtScore(o.max)} / ${fmtScore(o.min)}`} />
+        <StatCard label="Tỉ lệ đạt" value={fmtPct(o.pass_rate, 1)} hint={`Điểm ≥ ${o.pass_score}`} />
+        <StatCard label="Câu hỏi cần xem lại" value={bad.length} hint="Độ phân biệt < 0,2" tone={bad.length ? "amber" : undefined} />
+      </StatStrip>
 
       <div className="grid gap-6 xl:grid-cols-3">
         <Card className="xl:col-span-2">
@@ -90,9 +90,9 @@ export default function Stats() {
                 <XAxis dataKey="range" tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
                 <YAxis allowDecimals={false} tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
                 <Tooltip cursor={{ fill: "#f1f5f9" }} formatter={(v: number) => [v, "Thí sinh"]} />
-                <Bar dataKey="count" radius={[6, 6, 0, 0]}>
+                <Bar dataKey="count" radius={[3, 3, 0, 0]}>
                   {data.histogram.map((h, i) => (
-                    <Cell key={i} fill={h.from + o.max_score / 10 <= passLine ? "#f43f5e" : "#2547ea"} />
+                    <Cell key={i} fill={h.from + o.max_score / 10 <= passLine ? "#c8401f" : "#24231f"} />
                   ))}
                 </Bar>
               </BarChart>
@@ -100,17 +100,17 @@ export default function Stats() {
           </div>
         </Card>
         <Card>
-          <CardHeader title={<span className="flex items-center gap-2"><Trophy className="h-4 w-4 text-amber-500" /> Điểm cao nhất</span>} />
+          <CardHeader title="Điểm cao nhất" />
           <ol className="divide-y divide-slate-100">
             {data.top.slice(0, 7).map((t, i) => (
               <li key={t.submission_id}>
                 <Link to={`/submissions/${t.submission_id}`} className="flex items-center gap-3 px-5 py-2 text-sm hover:bg-slate-50">
-                  <span className={cn("flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold", i < 3 ? "bg-amber-100 text-amber-800" : "bg-slate-100 text-slate-500")}>{i + 1}</span>
+                  <span className={cn("flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold", i < 3 ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-500")}>{i + 1}</span>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-medium text-slate-800">{t.name || `SBD ${t.sbd}`}</span>
                     <span className="text-xs text-slate-400">{t.class_name || t.sbd}</span>
                   </span>
-                  <span className="font-semibold tabular text-emerald-600">{fmtScore(t.score)}</span>
+                  <span className="font-display text-[17px] tabular">{fmtScore(t.score)}</span>
                 </Link>
               </li>
             ))}
@@ -128,8 +128,8 @@ export default function Stats() {
                 <XAxis type="number" domain={[0, o.max_score]} tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
                 <YAxis type="category" dataKey="name" width={90} tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
                 <Tooltip formatter={(v: number, n: string) => [n === "mean" ? fmtScore(v) : v, n === "mean" ? "Điểm TB" : n]} />
-                <ReferenceLine x={passLine} stroke="#f43f5e" strokeDasharray="4 4" />
-                <Bar dataKey="mean" fill="#2547ea" radius={[0, 6, 6, 0]} barSize={18} />
+                <ReferenceLine x={passLine} stroke="#c8401f" strokeDasharray="4 4" />
+                <Bar dataKey="mean" fill="#24231f" radius={[0, 3, 3, 0]} barSize={16} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -143,11 +143,11 @@ export default function Stats() {
             <ResponsiveContainer>
               <ScatterChart margin={{ left: -10, right: 16, top: 4 }}>
                 <CartesianGrid stroke="#eef2f7" />
-                <ReferenceArea x1={0.3} x2={0.8} y1={0.3} y2={1} fill="#10b981" fillOpacity={0.08} />
+                <ReferenceArea x1={0.3} x2={0.8} y1={0.3} y2={1} fill="#1e6b3a" fillOpacity={0.07} />
                 <XAxis type="number" dataKey="p" name="Tỉ lệ đúng" domain={[0, 1]} tick={{ fontSize: 12 }} tickFormatter={(v) => `${v * 100}%`} />
                 <YAxis type="number" dataKey="d" name="Độ phân biệt" domain={[-0.5, 1]} tick={{ fontSize: 12 }} />
                 <ZAxis range={[50, 50]} />
-                <ReferenceLine y={0.2} stroke="#f59e0b" strokeDasharray="4 4" />
+                <ReferenceLine y={0.2} stroke="#c08a14" strokeDasharray="4 4" />
                 <Tooltip
                   cursor={{ strokeDasharray: "3 3" }}
                   content={({ payload }) => {
@@ -160,7 +160,7 @@ export default function Stats() {
                     );
                   }}
                 />
-                <Scatter data={data.items.filter((i) => i.d !== null)} fill="#2547ea" fillOpacity={0.75} />
+                <Scatter data={data.items.filter((i) => i.d !== null)} fill="#24231f" fillOpacity={0.8} />
               </ScatterChart>
             </ResponsiveContainer>
           </div>
@@ -190,7 +190,7 @@ export default function Stats() {
         />
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-slate-50 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
+            <thead className="border-b border-slate-200 text-left text-[12px] text-slate-500 [&_th]:font-normal">
               <tr>
                 <th className="px-4 py-2.5">Câu</th>
                 <th className="px-4 py-2.5">Đáp án</th>
@@ -207,7 +207,7 @@ export default function Stats() {
                 <tr key={it.q} className={cn(it.d !== null && it.d < 0.2 && "bg-amber-50/40")}>
                   <td className="px-4 py-2 font-semibold tabular">{it.q}</td>
                   <td className="px-4 py-2">
-                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white">{it.key || "?"}</span>
+                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-emerald-600 font-mono text-xs font-medium text-emerald-700">{it.key || "?"}</span>
                   </td>
                   <td className="px-4 py-2 text-right tabular">{fmtPct(it.p)}</td>
                   <td className="px-4 py-2"><Badge tone={diffTone(it.p)}>{it.difficulty}</Badge></td>

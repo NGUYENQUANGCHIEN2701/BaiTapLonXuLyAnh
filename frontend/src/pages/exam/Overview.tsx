@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { ExamFormModal } from "../../components/ExamForm";
-import { Button, Card, CardHeader, Field, Input, Modal, StatCard, useConfirm } from "../../components/ui";
+import { Button, Card, CardHeader, Field, Input, Modal, StatCard, StatStrip, useConfirm } from "../../components/ui";
 import { api, errMsg } from "../../lib/api";
 import type { Activity } from "../../lib/types";
 import { fmtScore, timeAgo } from "../../lib/utils";
@@ -63,25 +63,25 @@ export default function Overview() {
   return (
     <div className="grid gap-6 xl:grid-cols-3">
       <div className="space-y-6 xl:col-span-2">
-        <div className="grid gap-4 sm:grid-cols-3">
-          <StatCard label="Bài đã chấm" value={exam.num_submissions} tone="green" />
-          <StatCard label="Cần xem lại" value={exam.num_review} tone="amber" />
-          <StatCard label="Điểm trung bình" value={fmtScore(exam.avg_score)} tone="violet" />
-        </div>
+        <StatStrip>
+          <StatCard label="Bài đã chấm" value={exam.num_submissions} />
+          <StatCard label="Cần xem lại" value={exam.num_review} tone={exam.num_review ? "amber" : undefined} />
+          <StatCard label="Điểm trung bình" value={fmtScore(exam.avg_score)} />
+        </StatStrip>
         <Card>
           <CardHeader title="Quy trình" subtitle="Các bước chuẩn bị và chấm một kỳ thi" />
           <ol className="divide-y divide-slate-100">
             {steps.map((s, i) => (
               <li key={i}>
                 <Link to={s.to} className="flex items-center gap-4 px-5 py-3.5 hover:bg-slate-50">
-                  {s.done ? <CheckCircle2 className="h-6 w-6 shrink-0 text-emerald-500" /> : <Circle className="h-6 w-6 shrink-0 text-slate-300" />}
+                  {s.done ? <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-600" /> : <Circle className="h-5 w-5 shrink-0 text-slate-300" />}
                   <div className="min-w-0 flex-1">
                     <div className="font-medium text-slate-900">
                       {i + 1}. {s.title}
                     </div>
                     <div className="text-sm text-slate-500">{s.desc}</div>
                   </div>
-                  <span className="text-sm font-medium text-brand-700">Mở →</span>
+                  <span className="text-[13px] text-slate-500">Mở</span>
                 </Link>
               </li>
             ))}
