@@ -68,6 +68,64 @@ test("multiple turns, markdown safety, copy, storage and new conversation", asyn
   expect(await page.evaluate(() => JSON.parse(sessionStorage.getItem("omr:chat:1")!))).toEqual([]);
 });
 
+test("educational markdown renders math while keeping code literal and wide content contained", async ({ page }, info) => {
+  const longFormula = Array.from({ length: 30 }, (_, i) => `x_{${i + 1}}`).join(" + ");
+  const answer = [
+    "## Định luật II Newton",
+    "Gia tốc của một vật **cùng hướng với hợp lực** tác dụng lên vật. Công thức: $F = ma$.",
+    "### Công thức tổng quát",
+    String.raw`$$
+\vec{F} = m\vec{a}, \qquad a = \frac{F}{m}
+$$`,
+    "> Với cùng khối lượng, lực tác dụng càng lớn thì gia tốc càng lớn.",
+    "### Ví dụ minh họa",
+    "- Khối lượng: 2 kg.\n- Gia tốc: 3 m/s².\n- Hợp lực: **6 N**.",
+    "| Đại lượng | Ký hiệu | Đơn vị |\n|---|---|---|\n| Hợp lực | F | N |\n| Khối lượng | m | kg |\n| Gia tốc | a | m/s² |",
+    "```text\n$F = ma$\n```",
+    `$$\n${longFormula}\n$$`,
+  ].join("\n\n");
+  await page.route("**/api/chat/completions", (route) => route.fulfill({ json: { content: answer, truncated: false } }));
+  await setup(page);
+  await page.getByRole("textbox", { name: "Nội dung câu hỏi" }).fill("Định luật II Newton là gì?");
+  await page.getByRole("button", { name: "Gửi câu hỏi" }).click();
+  const markdown = page.locator(".chat-markdown");
+  await expect(markdown.getByRole("heading", { name: "Định luật II Newton" })).toBeVisible();
+  await expect(markdown.locator("p .katex")).toHaveCount(1);
+  await expect(markdown.locator(".katex-display")).toHaveCount(2);
+  await expect(markdown.locator(".katex-display").first().locator("annotation")).toContainText(String.raw`\frac{F}{m}`);
+  await expect(markdown.locator("pre code")).toHaveText("$F = ma$\n");
+  await expect(markdown.getByRole("table")).toBeVisible();
+  await page.evaluate(() => document.fonts.ready);
+  const layout = await markdown.evaluate((element) => {
+    const formula = element.querySelectorAll<HTMLElement>(".katex-display")[1];
+    return {
+      contained: element.scrollWidth <= element.clientWidth + 1,
+      formulaScrollable: formula.scrollWidth > formula.clientWidth,
+    };
+  });
+  expect(layout).toEqual({ contained: true, formulaScrollable: true });
+  await page.getByRole("log").evaluate((element) => { element.scrollTop = 0; });
+  await page.screenshot({ path: info.outputPath("chat-markdown-math.png") });
+});
+
+test("invalid and untrusted math does not break the answer or create unsafe links", async ({ page }) => {
+  const answer = String.raw`Công thức hợp lệ: $F = ma$.
+
+Công thức lỗi: $\frac{1}{$.
+
+$\href{javascript:alert(1)}{unsafe}$
+
+Nội dung phía sau vẫn đọc được.`;
+  await page.route("**/api/chat/completions", (route) => route.fulfill({ json: { content: answer, truncated: false } }));
+  await setup(page);
+  await page.getByRole("button", { name: "Cách nhập đáp án" }).click();
+  const markdown = page.locator(".chat-markdown");
+  await expect(markdown).toContainText("Nội dung phía sau vẫn đọc được.");
+  await expect(markdown.locator(".katex-error")).toHaveCount(1);
+  await expect(markdown.locator("script, iframe, a[href^='javascript:']")).toHaveCount(0);
+  await expect(markdown.locator(".katex")).toHaveCount(2);
+});
+
 test("offline service, pending request, retry, edit and upstream auth failure", async ({ page }, info) => {
   let calls = 0;
   await page.route("**/api/chat/completions", async (route) => {

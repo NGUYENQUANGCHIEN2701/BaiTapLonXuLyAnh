@@ -30,12 +30,14 @@ def client():
 @pytest.fixture
 def upstream():
     calls = []
-    state = {"status": 200, "body": {"choices": [{"message": {"content": "Vào Kỳ thi → Tạo kỳ thi."}, "finish_reason": "stop"}]}}
+    state = {"status": 200, "body": {"response": "Vào Kỳ thi → Tạo kỳ thi."}}
 
     def handle(request):
         calls.append(request)
         if "exception" in state:
             raise state["exception"]
+        if "raw_body" in state:
+            return httpx.Response(state["status"], text=state["raw_body"])
         return httpx.Response(state["status"], json=state["body"])
 
     service = ChatService(httpx.AsyncClient(transport=httpx.MockTransport(handle)))
@@ -51,18 +53,19 @@ def test_chat_requires_login():
         assert anonymous.post("/api/chat/completions", json=QUESTION).status_code == 401
 
 
-def test_success_and_server_controlled_payload(client, upstream):
+def test_qtededu_contract_and_server_controlled_payload(client, upstream):
     _, calls, service = upstream
     result = client.post("/api/chat/completions", json=QUESTION)
     assert result.status_code == 200
     assert result.json() == {"content": "Vào Kỳ thi → Tạo kỳ thi.", "truncated": False}
     payload = json.loads(calls[0].content)
     assert str(calls[0].url) == config.CHAT_COMPLETIONS_URL
-    assert payload["model"] == config.CHAT_MODEL
-    assert payload["messages"][0]["role"] == "system"
-    assert "không có quyền đọc database" in payload["messages"][0]["content"]
-    assert payload["messages"][1:] == QUESTION["messages"]
-    assert payload["stream"] is False
+    assert calls[0].headers["content-type"] == "application/json"
+    assert payload == {
+        "messages": QUESTION["messages"],
+        "temperature": 0.3,
+        "max_tokens": config.CHAT_MAX_TOKENS,
+    }
     assert not service.active_users
 
 
@@ -70,7 +73,7 @@ def test_multiple_turns(client, upstream):
     _, calls, _ = upstream
     messages = [*QUESTION["messages"], {"role": "assistant", "content": "Vào Kỳ thi."}, {"role": "user", "content": "Tiếp theo?"}]
     assert client.post("/api/chat/completions", json={"messages": messages}).status_code == 200
-    assert json.loads(calls[0].content)["messages"][1:] == messages
+    assert json.loads(calls[0].content)["messages"] == messages
 
 
 @pytest.mark.parametrize("body", [
@@ -99,7 +102,7 @@ def test_upstream_http_errors_preserve_session(client, upstream, upstream_status
     assert "private upstream details" not in result.text
     assert client.get("/api/auth/me").status_code == 200
     assert not service.active_users
-    state.update(status=200, body={"choices": [{"message": {"content": "Recovered"}}]})
+    state.update(status=200, body={"response": "Recovered"})
     assert client.post("/api/chat/completions", json=QUESTION).status_code == 200
 
 
@@ -111,20 +114,41 @@ def test_network_errors_release_slot(client, upstream, exception, expected):
     assert not service.active_users
 
 
-@pytest.mark.parametrize("body", [None, {}, {"choices": []}, {"choices": [{"message": {"content": None}}]},
-    {"choices": [{"message": {"content": " "}}]}, {"choices": [{"message": {"content": "<think>unfinished"}}]},
-    {"choices": [{"message": {"content": "a" * 16001}}]}])
+@pytest.mark.parametrize("body", [None, {}, [], "answer", {"choices": [{"message": {"content": "Old contract"}}]},
+    {"response": None}, {"response": 123}, {"response": {"content": "Wrong type"}}, {"response": []},
+    {"response": " "}, {"response": "<think>unfinished"}, {"response": "a" * 16001}])
 def test_malformed_responses(client, upstream, body):
     upstream[0]["body"] = body
     assert client.post("/api/chat/completions", json=QUESTION).status_code == 502
+    assert not upstream[2].active_users
 
 
-def test_reasoning_hidden_and_truncation_reported(client, upstream):
-    upstream[0]["body"] = {"choices": [{"message": {"content": "<think>private reasoning</think>\nFinal answer"}, "finish_reason": "length"}]}
-    assert client.post("/api/chat/completions", json=QUESTION).json() == {"content": "Final answer", "truncated": True}
+def test_non_json_response_and_recovery(client, upstream):
+    state, _, service = upstream
+    state["raw_body"] = "<html>ngrok error</html>"
+    assert client.post("/api/chat/completions", json=QUESTION).status_code == 502
+    assert not service.active_users
+    del state["raw_body"]
+    assert client.post("/api/chat/completions", json=QUESTION).status_code == 200
+
+
+def test_reasoning_hidden(client, upstream):
+    upstream[0]["body"] = {"response": "<think>private reasoning</think>\nFinal answer"}
+    assert client.post("/api/chat/completions", json=QUESTION).json() == {"content": "Final answer", "truncated": False}
+
+
+def test_qtededu_education_response_preserved(client, upstream):
+    answer = "  Định luật II Newton: **F = ma**.\n\nVí dụ: m = 2 kg, a = 3 m/s² ⇒ F = 6 N.  "
+    upstream[0]["body"] = {"response": answer}
+    result = client.post("/api/chat/completions", json={
+        "messages": [{"role": "user", "content": "Giải thích định luật II Newton"}],
+    })
+    assert result.status_code == 200
+    assert result.json() == {"content": answer.strip(), "truncated": False}
 
 
 @pytest.mark.parametrize("status,body,available", [(200, {"status": "ok"}, True), (200, {"ok": False}, False),
+    (200, {"status": "ok", "model": "ToanPhamAIEngi/Qwen3-8B-Vietnam-MultiDomainEdu"}, True),
     (200, {"status": "unhealthy"}, False), (200, None, False), (200, {}, False), (404, {"error": "offline"}, False)])
 def test_health_normalized_and_cached(client, upstream, status, body, available):
     state, calls, _ = upstream
@@ -140,7 +164,7 @@ def test_failed_health_does_not_block_chat(client, upstream):
     state, _, _ = upstream
     state.update(status=404, body={})
     assert not client.get("/api/chat/health").json()["available"]
-    state.update(status=200, body={"choices": [{"message": {"content": "Recovered"}}]})
+    state.update(status=200, body={"response": "Recovered"})
     assert client.post("/api/chat/completions", json=QUESTION).status_code == 200
     assert client.get("/api/chat/health").json()["available"]
 
@@ -155,7 +179,7 @@ def test_concurrent_requests_and_cancellation(monkeypatch):
         async def handle(request):
             entered.set()
             await release.wait()
-            return httpx.Response(200, json={"choices": [{"message": {"content": "ok"}}]})
+            return httpx.Response(200, json={"response": "ok"})
 
         service = ChatService(httpx.AsyncClient(transport=httpx.MockTransport(handle)))
         question = ChatRequest.model_validate(QUESTION)

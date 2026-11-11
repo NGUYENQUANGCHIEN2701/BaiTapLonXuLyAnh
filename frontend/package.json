@@ -15,13 +15,16 @@
     "@fontsource/source-serif-4": "5.2.5",
     "@tanstack/react-query": "5.80.7",
     "clsx": "2.1.1",
+    "katex": "0.16.47",
     "lucide-react": "0.515.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-markdown": "10.1.0",
     "react-router-dom": "7.6.2",
     "recharts": "2.15.3",
+    "rehype-katex": "7.0.1",
     "remark-gfm": "4.0.1",
+    "remark-math": "6.0.0",
     "sonner": "2.0.5"
   },
   "devDependencies": {

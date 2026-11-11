@@ -1,14 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { Bot, Check, Copy, Loader2, MessageCircle, Plus, RotateCw, Send, X } from "lucide-react";
-import { useEffect, useRef, useState, type CSSProperties } from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties } from "react";
 import { toast } from "sonner";
 import { api, errMsg } from "../../lib/api";
 import { loadChatHistory, requestChat, saveChatHistory, type ChatHealth, type ChatMessage } from "../../lib/chat";
 import { cn } from "../../lib/utils";
 import { Button, useConfirm } from "../ui";
 
+const ChatMarkdown = lazy(() => import("./ChatMarkdown"));
 const SUGGESTIONS = ["Hướng dẫn tạo kỳ thi", "Cách nhập đáp án", "Vì sao bài cần duyệt?", "Giải thích quy trình xử lý ảnh"];
 // randomUUID chỉ có trong secure context; hỗ trợ cả điện thoại truy cập HTTP trong LAN.
 const messageId = () => globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -25,11 +24,9 @@ function Message({ message }: { message: ChatMessage }) {
         : "w-full rounded-tl-sm border border-slate-200 bg-white text-slate-800")}>
         {message.role === "user" ? message.content : (
           <div className="chat-markdown">
-            <ReactMarkdown remarkPlugins={[remarkGfm]} skipHtml components={{
-              a: ({ children, ...props }) => <a {...props} target="_blank" rel="noopener noreferrer">{children}</a>,
-              img: () => null,
-              table: ({ children }) => <div className="overflow-x-auto"><table>{children}</table></div>,
-            }}>{message.content}</ReactMarkdown>
+            <Suspense fallback={<div className="whitespace-pre-wrap">{message.content}</div>}>
+              <ChatMarkdown content={message.content} />
+            </Suspense>
           </div>
         )}
         {message.truncated && <p className="mt-3 border-t border-slate-200 pt-2 text-xs text-slate-500">Câu trả lời đã đạt giới hạn độ dài. Bạn có thể yêu cầu giải thích tiếp.</p>}

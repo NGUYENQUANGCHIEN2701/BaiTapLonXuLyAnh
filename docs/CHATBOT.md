@@ -1,5 +1,8 @@
 # Chatbot Trợ lý AI trong OMR Exam
 
+Chatbot kết nối QtedEdu Education, chạy model `ToanPhamAIEngi/Qwen3-8B-Vietnam-MultiDomainEdu`
+trên Kaggle qua ngrok. Model và system prompt được cấu hình tại server AI.
+
 Chatbot xuất hiện ở góc dưới bên phải sau khi đăng nhập, dùng được cho admin và giáo viên.
 Trên điện thoại, khung chat mở gần toàn màn hình và điều chỉnh theo vùng hiển thị khi bật bàn phím.
 Giao diện có câu hỏi gợi ý, Markdown/bảng/đoạn mã, sao chép câu trả lời, thử lại, sửa câu hỏi lỗi,
@@ -26,11 +29,10 @@ Sau khi cập nhật mã/build, khởi động lại tiến trình FastAPI đang
 |---|---|---|
 | `OMR_CHAT_COMPLETIONS_URL` | `https://sly-series-landowner.ngrok-free.dev/v1/chat/completions` | URL sinh câu trả lời đầy đủ |
 | `OMR_CHAT_HEALTH_URL` | `https://sly-series-landowner.ngrok-free.dev/health` | URL kiểm tra dịch vụ |
-| `OMR_CHAT_MODEL` | `ToanPhamAIEngi/Qwen3-8B-Vietnam-MultiDomainEdu` | Model gửi tới upstream |
 | `OMR_CHAT_API_KEY` | Rỗng | Khóa Bearer nếu dịch vụ yêu cầu |
 | `OMR_CHAT_TIMEOUT` | `90` | Timeout HTTP sinh câu trả lời, giây |
 | `OMR_CHAT_HEALTH_TIMEOUT` | `5` | Timeout kiểm tra health, giây |
-| `OMR_CHAT_MAX_TOKENS` | `1536` | Giới hạn token đầu ra |
+| `OMR_CHAT_MAX_TOKENS` | `2048` | Giới hạn token đầu ra |
 | `OMR_CHAT_MAX_CONCURRENT` | `2` | Số yêu cầu sinh câu trả lời đồng thời mỗi worker |
 
 Ví dụ thay endpoint khi đường hầm ngrok đổi địa chỉ:
@@ -59,12 +61,23 @@ Cả hai API nội bộ yêu cầu cookie đăng nhập `omr_session`:
   Lịch sử bắt đầu bằng user, xen kẽ user/assistant, kết thúc bằng user.
   Trả `{ "content": "...", "truncated": false }`.
 
-Backend gọi upstream theo contract chat completions với `model`, `messages`, `stream: false`,
-`max_tokens` và `temperature: 0.6`. System prompt do backend thêm; frontend không được ghi đè
-model, URL, tham số sinh hoặc gửi role system. Câu trả lời được đọc từ `choices[0].message.content`;
-`finish_reason: "length"` tạo nhắc nhở giới hạn độ dài trên UI. Các khối `<think>...</think>`
-được loại khỏi nội dung hiển thị; nội dung suy luận chưa đóng được coi là phản hồi không hợp lệ.
-Backend gửi header `ngrok-skip-browser-warning: true` khi gọi dịch vụ.
+Backend gọi `POST` tới QtedEdu với `Content-Type: application/json` theo đúng contract:
+
+```json
+{
+  "messages": [{"role": "user", "content": "Giải thích định luật II Newton"}],
+  "temperature": 0.3,
+  "max_tokens": 2048
+}
+```
+
+`messages` chứa lịch sử user/assistant đã được kiểm tra. Backend không thêm system prompt,
+không gửi `model` hoặc `stream`; model do server Kaggle chọn. Biến `OMR_CHAT_MODEL` cũ không còn sử dụng.
+Upstream trả `{"response": "Nội dung trả lời của AI"}`. Backend đọc chuỗi `response`, kiểm tra
+nội dung và chuyển thành `{"content": "...", "truncated": false}` cho giao diện hiện tại.
+API QtedEdu không cung cấp trạng thái cắt ngắn, nên backend không suy đoán `finish_reason`.
+Các khối `<think>...</think>` được loại khỏi nội dung hiển thị; nội dung suy luận chưa đóng
+được coi là phản hồi không hợp lệ. Backend gửi header `ngrok-skip-browser-warning: true` khi gọi dịch vụ.
 
 ## Lịch sử và giới hạn
 
@@ -74,15 +87,19 @@ Backend gửi header `ngrok-skip-browser-warning: true` khi gọi dịch vụ.
 - UI lưu tối đa khoảng 60 tin nhắn gần nhất, cắt theo cặp hỏi/đáp.
 - Mỗi câu hỏi tối đa 4.000 ký tự; mỗi câu trả lời tối đa 16.000 ký tự.
 - Mỗi request tối đa 20 tin nhắn, 20.000 ký tự tổng cộng. UI chọn tối đa 19 tin nhắn gần nhất
-  và tự bỏ cặp cũ để giữ trong giới hạn; system prompt được backend thêm riêng.
+  và tự bỏ cặp cũ để giữ trong giới hạn.
 - Mỗi tài khoản tối đa một yêu cầu đang xử lý trong mỗi worker; toàn worker mặc định hai yêu cầu.
   Triển khai nhiều worker cần bộ giới hạn dùng chung nếu muốn giới hạn trên toàn dịch vụ.
 - Frontend chấm dứt chờ sau 120 giây. Khi đóng chat, request vẫn tiếp tục để giữ câu trả lời;
   khi rời phiên đăng nhập hoặc tạo hội thoại mới, frontend hủy request của cuộc chat cũ.
-- Kết quả AI được render bằng `react-markdown` và `remark-gfm`, bỏ HTML và ảnh từ model,
-  lọc URL nguy hiểm; liên kết mở tab mới với `noopener noreferrer`.
+- Kết quả AI được render bằng `react-markdown` và `remark-gfm`: tiêu đề, danh sách, bảng,
+  trích dẫn và đoạn mã. `remark-math` + `rehype-katex` hiển thị công thức `$F = ma$` trong dòng
+  và `$$...$$` dạng khối; CSS/font KaTeX được build cùng frontend, không tải từ CDN.
+  Bảng, đoạn mã và công thức dài cuộn ngang trong khung chat trên điện thoại.
+  HTML và ảnh từ model bị bỏ, URL nguy hiểm được lọc; liên kết mở tab mới với
+  `noopener noreferrer`. KaTeX dùng `trust: false`.
 
-Model nhận nội dung câu hỏi/lịch sử do người dùng gửi và mô tả chức năng hệ thống.
+Model nhận nội dung câu hỏi/lịch sử do người dùng gửi; system prompt do server QtedEdu quản lý.
 Chatbot chưa đọc database, điểm, danh sách thí sinh hoặc ảnh; chưa thực hiện thao tác quản trị/chấm bài.
 
 ## Lỗi và chẩn đoán
@@ -102,6 +119,9 @@ Backend không chuyển nội dung lỗi thô/khóa truy cập upstream ra UI.
 Nếu ngrok trả `ERR_NGROK_3200`, khởi động lại server model và đường hầm ngrok,
 kiểm tra URL `/health`, rồi cập nhật biến URL nếu địa chỉ đã đổi. UI vẫn cho thử gửi khi health lỗi.
 Health thành công chỉ xác nhận endpoint health; cần gửi một câu hỏi để xác minh model và API key.
+
+Nếu API trả `{"response": "..."}` nhưng backend báo «nội dung không hợp lệ», kiểm tra đã chạy
+mã mới và khởi động lại FastAPI. Bản cũ đọc `choices[0].message.content` nên không tương thích QtedEdu.
 
 ## Kiểm thử
 

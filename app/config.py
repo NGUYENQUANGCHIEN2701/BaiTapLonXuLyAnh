@@ -37,11 +37,11 @@ STORE_MAX_SIDE = 2000
 # Chatbot: chỉ backend biết URL và khóa truy cập dịch vụ AI.
 CHAT_COMPLETIONS_URL = os.environ.get("OMR_CHAT_COMPLETIONS_URL", "https://sly-series-landowner.ngrok-free.dev/v1/chat/completions")
 CHAT_HEALTH_URL = os.environ.get("OMR_CHAT_HEALTH_URL", "https://sly-series-landowner.ngrok-free.dev/health")
-CHAT_MODEL = os.environ.get("OMR_CHAT_MODEL", "ToanPhamAIEngi/Qwen3-8B-Vietnam-MultiDomainEdu")
+# Model ToanPhamAIEngi/Qwen3-8B-Vietnam-MultiDomainEdu do QtedEdu cấu hình trên Kaggle.
 CHAT_API_KEY = os.environ.get("OMR_CHAT_API_KEY", "")
 CHAT_TIMEOUT = float(os.environ.get("OMR_CHAT_TIMEOUT", "90"))
 CHAT_HEALTH_TIMEOUT = float(os.environ.get("OMR_CHAT_HEALTH_TIMEOUT", "5"))
-CHAT_MAX_TOKENS = int(os.environ.get("OMR_CHAT_MAX_TOKENS", "1536"))
+CHAT_MAX_TOKENS = int(os.environ.get("OMR_CHAT_MAX_TOKENS", "2048"))
 CHAT_MAX_CONCURRENT = int(os.environ.get("OMR_CHAT_MAX_CONCURRENT", "2"))
 if min(CHAT_TIMEOUT, CHAT_HEALTH_TIMEOUT, CHAT_MAX_TOKENS, CHAT_MAX_CONCURRENT) <= 0:
     raise ValueError("Cấu hình timeout, token và số yêu cầu chatbot phải lớn hơn 0")
