@@ -1,14 +1,55 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from omr.layout import MAX_QUESTIONS
 
 
 class ORM(BaseModel):
     model_config = ConfigDict(from_attributes=True)
+
+
+class ChatMessage(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    role: Literal["user", "assistant"]
+    content: str = Field(min_length=1, max_length=16000)
+
+    @model_validator(mode="after")
+    def validate_content(self):
+        self.content = self.content.strip()
+        if not self.content:
+            raise ValueError("Tin nhắn không được để trống")
+        if self.role == "user" and len(self.content) > 4000:
+            raise ValueError("Tin nhắn tối đa 4000 ký tự")
+        return self
+
+
+class ChatRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    messages: list[ChatMessage] = Field(min_length=1, max_length=20)
+
+    @model_validator(mode="after")
+    def validate_history(self):
+        if self.messages[-1].role != "user":
+            raise ValueError("Tin nhắn cuối phải là câu hỏi của người dùng")
+        if any(m.role != ("user" if i % 2 == 0 else "assistant") for i, m in enumerate(self.messages)):
+            raise ValueError("Lịch sử phải bắt đầu bằng user và xen kẽ user/assistant")
+        if sum(len(m.content) for m in self.messages) > 20000:
+            raise ValueError("Tổng lịch sử tối đa 20000 ký tự")
+        return self
+
+
+class ChatReply(BaseModel):
+    content: str
+    truncated: bool = False
+
+
+class ChatHealth(BaseModel):
+    available: bool
+    message: str
 
 
 # ---- Người dùng -----------------------------------------------------------------

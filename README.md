@@ -20,6 +20,7 @@ và phân tích câu hỏi.
 | Thống kê | Phổ điểm, theo lớp, theo mã đề, top thí sinh, **độ khó p**, **độ phân biệt D (nhóm 27%)**, phân bố phương án nhiễu |
 | Xuất | Excel: bảng điểm, chi tiết bài làm, phân tích câu hỏi |
 | Phòng thí nghiệm XLA | Hiển thị **từng bước** pipeline trên ảnh bất kỳ (phục vụ báo cáo/thuyết trình) |
+| Trợ lý AI | Chatbot tiếng Việt trên desktop/điện thoại, hỏi đáp giáo dục và hướng dẫn hệ thống, lưu hội thoại trong tab |
 
 ## Cài đặt & chạy
 
@@ -44,6 +45,8 @@ Cho điện thoại trong cùng mạng LAN truy cập: `python run.py --host 0.0
 `localhost`/HTTPS — trên điện thoại dùng nút *Tải ảnh lên*, trình duyệt sẽ cho chụp trực tiếp).
 
 ## Cấu trúc thư mục
+
+Chatbot: cấu hình endpoint/model/API key, giới hạn và kiểm thử tại [docs/CHATBOT.md](docs/CHATBOT.md).
 
 ```
 omr/                    Lõi xử lý ảnh (độc lập với web)

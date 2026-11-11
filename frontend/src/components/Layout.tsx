@@ -8,6 +8,7 @@ import { useAuth } from "../lib/auth";
 import type { Exam } from "../lib/types";
 import { cn } from "../lib/utils";
 import { Button, Field, Input, Modal } from "./ui";
+import ChatWidget from "./chat/ChatWidget";
 
 /** Biểu tượng: 4 marker góc như trên phiếu thật, ô góc trên-trái rỗng. */
 export function SheetMark({ className }: { className?: string }) {
@@ -187,6 +188,7 @@ export default function Layout() {
         </main>
       </div>
       <PasswordModal open={pwOpen} onClose={() => setPwOpen(false)} />
+      {user && <ChatWidget key={user.id} userId={user.id} />}
     </div>
   );
 }

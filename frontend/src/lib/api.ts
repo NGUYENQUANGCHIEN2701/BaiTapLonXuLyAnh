@@ -19,8 +19,8 @@ function messageFrom(body: unknown, fallback: string): string {
   return fallback;
 }
 
-async function request<T>(method: string, url: string, body?: unknown): Promise<T> {
-  const init: RequestInit = { method, credentials: "include", headers: {} };
+async function request<T>(method: string, url: string, body?: unknown, signal?: AbortSignal): Promise<T> {
+  const init: RequestInit = { method, credentials: "include", headers: {}, signal };
   if (body instanceof FormData) {
     init.body = body;
   } else if (body !== undefined) {
@@ -41,7 +41,7 @@ async function request<T>(method: string, url: string, body?: unknown): Promise<
 
 export const api = {
   get: <T>(url: string) => request<T>("GET", url),
-  post: <T>(url: string, body?: unknown) => request<T>("POST", url, body),
+  post: <T>(url: string, body?: unknown, signal?: AbortSignal) => request<T>("POST", url, body, signal),
   put: <T>(url: string, body?: unknown) => request<T>("PUT", url, body),
   patch: <T>(url: string, body?: unknown) => request<T>("PATCH", url, body),
   del: <T>(url: string) => request<T>("DELETE", url),

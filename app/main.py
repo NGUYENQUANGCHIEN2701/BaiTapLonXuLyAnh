@@ -11,8 +11,9 @@ from sqlalchemy import select
 from .config import DEFAULT_ADMIN_PASSWORD, DEFAULT_ADMIN_USER, FRONTEND_DIST
 from .db import Base, SessionLocal, engine
 from .models import User
-from .routers import auth, dashboard, exams, lab, submissions
+from .routers import auth, chat, dashboard, exams, lab, submissions
 from .security import hash_password
+from .services.chat import ChatService
 
 
 def init_db() -> None:
@@ -25,9 +26,13 @@ def init_db() -> None:
 
 
 @asynccontextmanager
-async def lifespan(_: FastAPI):
+async def lifespan(application: FastAPI):
     init_db()
-    yield
+    application.state.chat_service = ChatService()
+    try:
+        yield
+    finally:
+        await application.state.chat_service.close()
 
 
 app = FastAPI(title="Hệ thống quản lý kỳ thi & chấm trắc nghiệm", version="1.0.0", lifespan=lifespan)
@@ -39,7 +44,7 @@ app.add_middleware(  # cho phép Vite dev server (cổng 5173) gọi API khi ph�
     allow_headers=["*"],
 )
 
-for r in (auth.router, exams.router, submissions.router, lab.router, dashboard.router):
+for r in (auth.router, exams.router, submissions.router, lab.router, dashboard.router, chat.router):
     app.include_router(r)
 
 
