@@ -7,7 +7,7 @@ import "katex/dist/katex.min.css";
 export default function ChatMarkdown({ content }: { content: string }) {
   return (
     <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]}
-      rehypePlugins={[[rehypeKatex, { trust: false, strict: "ignore" }]]} skipHtml components={{
+      rehypePlugins={[[rehypeKatex, { trust: false, strict: "ignore", errorColor: "var(--color-danger)" }]]} skipHtml components={{
         a: ({ children, href, title }) => <a href={href} title={title} target="_blank" rel="noopener noreferrer">{children}</a>,
         img: () => null,
         table: ({ children }) => (

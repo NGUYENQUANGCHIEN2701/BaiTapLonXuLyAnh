@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Bot, Check, Copy, Loader2, MessageCircle, Plus, RotateCw, Send, X } from "lucide-react";
+import { ArrowUpRight, Bot, Check, Copy, Loader2, MessageCircle, Plus, RotateCw, Send, X } from "lucide-react";
 import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties } from "react";
 import { toast } from "sonner";
 import { api, errMsg } from "../../lib/api";
@@ -18,9 +18,9 @@ function Message({ message }: { message: ChatMessage }) {
   useEffect(() => () => clearTimeout(timer.current), []);
   return (
     <div className={cn("flex flex-col items-start gap-1.5", message.role === "user" && "items-end")}>
-      <span className="px-1 text-[11px] font-medium text-slate-500">{message.role === "user" ? "Bạn" : "Trợ lý AI"}</span>
-      <div className={cn("max-w-full rounded-xl px-3.5 py-3 text-[13px] leading-relaxed", message.role === "user"
-        ? "max-w-[90%] whitespace-pre-wrap break-words rounded-tr-sm bg-slate-900 text-white"
+      <span className="px-1 text-[13px] font-medium text-slate-500">{message.role === "user" ? "Bạn" : "Trợ lý AI"}</span>
+      <div className={cn("max-w-full rounded-xl px-4 py-3 text-[15px] leading-relaxed", message.role === "user"
+        ? "max-w-[90%] whitespace-pre-wrap break-words rounded-tr-sm bg-primary-soft text-text"
         : "w-full rounded-tl-sm border border-slate-200 bg-white text-slate-800")}>
         {message.role === "user" ? message.content : (
           <div className="chat-markdown">
@@ -29,10 +29,10 @@ function Message({ message }: { message: ChatMessage }) {
             </Suspense>
           </div>
         )}
-        {message.truncated && <p className="mt-3 border-t border-slate-200 pt-2 text-xs text-slate-500">Câu trả lời đã đạt giới hạn độ dài. Bạn có thể yêu cầu giải thích tiếp.</p>}
+        {message.truncated && <p className="mt-3 border-t border-slate-200 pt-2 text-[13px] text-slate-500">Câu trả lời đã đạt giới hạn độ dài. Bạn có thể yêu cầu giải thích tiếp.</p>}
       </div>
       {message.role === "assistant" && (
-        <button className="inline-flex items-center gap-1 rounded px-1.5 py-1 text-[11px] text-slate-500 hover:bg-slate-100 focus-visible:outline-2" onClick={async () => {
+        <button className="inline-flex items-center gap-1 rounded px-1.5 py-1 text-[13px] text-slate-500 hover:bg-primary-softer focus-visible:outline-2" onClick={async () => {
           try {
             await navigator.clipboard.writeText(message.content);
             setCopied(true);
@@ -144,17 +144,17 @@ export default function ChatWidget({ userId }: { userId: number }) {
   return (
     <>
       <button ref={launcher} onClick={() => setOpen(!open)} aria-label={open ? "Thu gọn trợ lý AI" : "Mở trợ lý AI"}
-        aria-expanded={open} aria-controls="omr-chat" className={cn("fixed bottom-5 right-4 z-30 inline-flex h-12 items-center gap-2 rounded-full bg-slate-900 px-4 text-sm font-medium text-white shadow-pop transition-colors hover:bg-slate-700 focus-visible:outline-2 focus-visible:outline-offset-4 sm:right-6", open && "hidden sm:inline-flex")}>
+        aria-expanded={open} aria-controls="omr-chat" className={cn("fixed bottom-5 right-4 z-30 inline-flex h-12 items-center gap-2 rounded-full border border-primary bg-white px-4 text-[15px] font-semibold text-primary-hover shadow-sm transition-colors hover:bg-primary-softer active:bg-primary-soft focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-4 sm:right-6", open && "hidden sm:inline-flex")}>
         <MessageCircle className="h-5 w-5" />Trợ lý AI
       </button>
       {open && (
         <section id="omr-chat" role="dialog" aria-label="Trợ lý AI OMR Exam" style={mobileStyle}
-          className="fixed inset-x-2 bottom-2 z-40 flex h-[calc(100dvh-1rem)] flex-col overflow-hidden rounded-2xl border border-slate-300 bg-paper shadow-pop sm:inset-x-auto sm:bottom-20 sm:right-6 sm:h-[min(700px,calc(100dvh-7rem))] sm:w-[430px]">
+          className="fixed inset-x-2 bottom-2 z-40 flex h-[calc(100dvh-1rem)] flex-col overflow-hidden rounded-2xl border border-slate-300 bg-paper shadow-sm sm:inset-x-auto sm:bottom-20 sm:right-6 sm:h-[min(700px,calc(100dvh-7rem))] sm:w-[430px]">
           <header className="flex shrink-0 items-center gap-2.5 border-b border-slate-200 bg-white px-4 py-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-mark-soft text-mark"><Bot className="h-5 w-5" /></div>
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary"><Bot className="h-5 w-5" /></div>
             <div className="min-w-0 flex-1">
-              <h2 className="font-display text-lg font-semibold">Trợ lý AI</h2>
-              <p className="flex items-center gap-1.5 text-[11px] text-slate-500" role="status">
+              <h2 className="font-sans text-lg font-semibold">Trợ lý AI</h2>
+              <p className="flex items-center gap-1.5 text-[13px] text-slate-500" role="status">
                 <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", checking && !health ? "bg-slate-400" : health?.available ? "bg-emerald-600" : "bg-amber-500")} />
                 {checking && !health ? "Đang kiểm tra kết nối…" : health?.available ? "Đã kết nối dịch vụ AI" : "Chưa kết nối dịch vụ AI"}
               </p>
@@ -166,18 +166,18 @@ export default function ChatWidget({ userId }: { userId: number }) {
           <div ref={log} role="log" aria-label="Cuộc trò chuyện" aria-live="polite" aria-relevant="additions" className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-4 py-5">
             {!messages.length && (
               <div className="py-5">
-                <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.15em] text-mark">OMR Exam · Trợ lý học tập</p>
-                <h3 className="font-display text-[26px] font-semibold leading-tight">Tôi có thể giúp gì<br />cho bạn hôm nay?</h3>
-                <p className="mt-3 text-[13px] leading-relaxed text-slate-600">Hỏi về cách sử dụng hệ thống, quy trình chấm thi hoặc kiến thức học tập.</p>
+                <p className="mb-2 text-[13px] font-semibold text-primary-hover">OMR Exam · Trợ lý học tập</p>
+                <h3 className="font-sans text-2xl font-semibold leading-tight text-navy">Tôi có thể giúp gì<br />cho bạn hôm nay?</h3>
+                <p className="mt-3 text-[15px] leading-relaxed text-text-muted">Hỏi về cách sử dụng hệ thống, quy trình chấm thi hoặc kiến thức học tập.</p>
                 <div className="mt-6 grid gap-2">
-                  {SUGGESTIONS.map((text) => <button key={text} onClick={() => void send(text)} className="rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-left text-[13px] text-slate-700 transition-colors hover:border-slate-400 hover:text-slate-900 focus-visible:outline-2">{text}<span aria-hidden className="float-right text-slate-400">↗</span></button>)}
+                  {SUGGESTIONS.map((text) => <button key={text} onClick={() => void send(text)} className="flex items-center justify-between gap-3 rounded-lg border border-border bg-white px-3 py-3 text-left text-[15px] text-text transition-colors hover:border-primary hover:bg-primary-softer hover:text-primary-hover focus-visible:outline-2">{text}<ArrowUpRight aria-hidden className="h-[18px] w-[18px] shrink-0 text-primary" /></button>)}
                 </div>
               </div>
             )}
             {messages.map((message) => <Message key={message.id} message={message} />)}
-            {busy && <div role="status" className="flex items-center gap-2 text-xs text-slate-500"><Loader2 className="h-4 w-4 animate-spin" />Đang trả lời…</div>}
+            {busy && <div role="status" className="flex items-center gap-2 text-[13px] text-slate-500"><Loader2 className="h-4 w-4 animate-spin" />Đang trả lời…</div>}
             {!busy && pending && (
-              <div role="alert" className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs leading-relaxed text-amber-800">
+              <div role="alert" className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-[13px] leading-relaxed text-amber-800">
                 <p>{error || "Câu hỏi này chưa có câu trả lời. Bạn có thể thử gửi lại."}</p>
                 <div className="mt-2 flex flex-wrap gap-3">
                   <button className="inline-flex items-center gap-1 font-medium underline underline-offset-2" onClick={() => void send(undefined, true)}><RotateCw className="h-3 w-3" />Thử lại</button>
@@ -190,17 +190,17 @@ export default function ChatWidget({ userId }: { userId: number }) {
           </div>
 
           <footer className="shrink-0 border-t border-slate-200 bg-white px-3 pb-3 pt-2.5">
-            {(!health?.available && !checking) && <div className="mb-2 flex items-start justify-between gap-2 text-[11px] leading-relaxed text-amber-800"><span>{health?.message ?? "Chưa kiểm tra được kết nối dịch vụ AI."}</span><button onClick={() => void checkHealth()} className="shrink-0 underline">Kiểm tra lại</button></div>}
-            {historyNote && <p className="mb-2 text-[11px] text-slate-500">Trợ lý dùng các lượt trao đổi gần nhất để trả lời.</p>}
-            <form onSubmit={(e) => { e.preventDefault(); void send(); }} className="flex items-end gap-2 rounded-xl border border-slate-300 bg-paper p-2 focus-within:border-slate-600">
+            {(!health?.available && !checking) && <div className="mb-2 flex items-start justify-between gap-2 text-[13px] leading-relaxed text-amber-800"><span>{health?.message ?? "Chưa kiểm tra được kết nối dịch vụ AI."}</span><button onClick={() => void checkHealth()} className="shrink-0 underline">Kiểm tra lại</button></div>}
+            {historyNote && <p className="mb-2 text-[13px] text-slate-500">Trợ lý dùng các lượt trao đổi gần nhất để trả lời.</p>}
+            <form onSubmit={(e) => { e.preventDefault(); void send(); }} className="flex items-end gap-2 rounded-xl border border-border bg-white p-2 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
               <textarea ref={input} value={draft} onChange={(e) => setDraft(e.target.value)} rows={1} maxLength={4000}
                 disabled={busy || pending} aria-label="Nội dung câu hỏi" placeholder="Nhập câu hỏi của bạn…"
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); void send(); }
-                }} className="min-h-9 min-w-0 flex-1 resize-none bg-transparent px-1 py-2 text-sm leading-5 outline-none disabled:opacity-50" />
-              <Button type="submit" size="icon" aria-label="Gửi câu hỏi" disabled={!draft.trim() || busy || pending} className="mb-0.5 shrink-0 rounded-lg">{busy ? <Loader2 className="animate-spin" /> : <Send />}</Button>
+                }} className="min-h-9 min-w-0 flex-1 resize-none bg-transparent px-1 py-2 text-[15px] leading-5 outline-none disabled:opacity-50" />
+              <Button type="submit" variant="secondary" size="icon" aria-label="Gửi câu hỏi" disabled={!draft.trim() || busy || pending} className="mb-0.5 shrink-0 rounded-lg">{busy ? <Loader2 className="animate-spin" /> : <Send />}</Button>
             </form>
-            <div className="mt-2 flex items-start justify-between gap-2 text-[10px] leading-relaxed text-slate-500"><p>AI có thể trả lời sai. Hãy kiểm tra thông tin quan trọng.</p><span className="shrink-0 tabular">{draft.length}/4000</span></div>
+            <div className="mt-2 flex items-start justify-between gap-2 text-[13px] leading-relaxed text-text-muted"><p>AI có thể trả lời sai. Hãy kiểm tra thông tin quan trọng.</p><span className="shrink-0 tabular">{draft.length}/4000</span></div>
           </footer>
         </section>
       )}
