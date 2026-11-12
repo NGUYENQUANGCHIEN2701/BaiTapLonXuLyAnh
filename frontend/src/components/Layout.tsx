@@ -108,6 +108,7 @@ export default function Layout() {
   const searchRef = useRef<HTMLInputElement>(null);
   const searchWrapRef = useRef<HTMLDivElement>(null);
   const accountMenuRef = useRef<HTMLDivElement>(null);
+  const mainScrollRef = useRef<HTMLElement>(null);
   const { data: exams } = useQuery({ queryKey: ["exams"], queryFn: () => api.get<Exam[]>("/api/exams") });
   const { data: dashboard } = useQuery({ queryKey: ["dashboard"], queryFn: () => api.get<Dashboard>("/api/dashboard"), enabled: !!searchText.trim() });
   const reviewTotal = exams?.reduce((s, e) => s + e.num_review, 0) ?? 0;
@@ -115,7 +116,11 @@ export default function Layout() {
   const examMatches = normalizedSearch ? (exams ?? []).filter((e) => `${e.name} ${e.subject ?? ""}`.toLocaleLowerCase("vi").includes(normalizedSearch)).slice(0, 4) : [];
   const submissionMatches = normalizedSearch ? (dashboard?.recent ?? []).filter((s) => `${s.name ?? ""} ${s.sbd ?? ""} ${s.exam_name}`.toLocaleLowerCase("vi").includes(normalizedSearch)).slice(0, 4) : [];
 
-  useEffect(() => { setMobileOpen(false); setAccountOpen(false); }, [loc.pathname]);
+  useEffect(() => {
+    setMobileOpen(false);
+    setAccountOpen(false);
+    mainScrollRef.current?.scrollTo({ top: 0 });
+  }, [loc.pathname]);
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
@@ -256,7 +261,7 @@ export default function Layout() {
             </div>
           </div>
         </header>
-        <main className="min-w-0 flex-1 overflow-y-auto bg-surface">
+        <main ref={mainScrollRef} className="min-w-0 flex-1 overflow-y-auto bg-surface">
           <div className={cn("mx-auto w-full max-w-[1440px] px-4 pb-24 sm:px-6 sm:pb-24 lg:px-8", isExamDetail ? "py-2 sm:py-2" : "py-6 sm:py-8")}>
             <Outlet />
           </div>

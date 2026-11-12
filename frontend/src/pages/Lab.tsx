@@ -140,9 +140,11 @@ export default function Lab() {
       </Card>
 
       <Card className="min-w-0 overflow-hidden xl:col-start-2 xl:row-start-1 2xl:col-start-auto 2xl:row-start-auto">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-4 sm:px-5">
-          <div className="flex min-w-0 items-center gap-3"><Badge tone="blue">Bước {selectedIndex+1} / 12</Badge><div className="min-w-0"><h2 className="truncate text-[18px] font-bold text-navy">{title}</h2><p className="mt-0.5 line-clamp-2 text-[13px] text-slate-600">{active?.description??PIPELINE[selectedIndex]?.short}</p></div></div>
-          {active&&<Badge tone="gray"><Clock3 className="h-3.5 w-3.5" />{active.ms.toFixed(1)} ms</Badge>}
+        <div className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-x-3 gap-y-1 border-b border-border px-4 py-4 sm:px-5">
+          <Badge tone="blue" className="row-span-2 mt-0.5 shrink-0">Bước {selectedIndex+1} / 12</Badge>
+          <h2 className="min-w-0 break-words text-[18px] font-bold leading-6 text-navy">{title}</h2>
+          {active&&<Badge tone="gray" className="col-start-3 row-start-1 shrink-0"><Clock3 className="h-3.5 w-3.5" />{active.ms.toFixed(1)} ms</Badge>}
+          <p className="col-start-2 col-end-4 min-w-0 line-clamp-2 text-[13px] leading-5 text-slate-600">{active?.description??PIPELINE[selectedIndex]?.short}</p>
         </div>
 
         {busy?<div className="flex min-h-[380px] flex-col items-center justify-center gap-3 px-6 text-center"><PageLoader /><p className="text-[14px] font-medium text-slate-600">Đang chạy pipeline xử lý ảnh 12 bước…</p><p className="text-[12px] text-slate-500">Ảnh không được lưu sau khi phân tích.</p></div>
@@ -159,7 +161,7 @@ export default function Lab() {
             </div>
           </>}
 
-        <div className="flex flex-wrap items-center gap-3 border-t border-border bg-surface px-4 py-3 sm:px-5">
+        <div className="flex flex-wrap items-center gap-3 border-t border-border bg-surface px-4 py-3 sm:px-5 lg:pr-40">
           <Button variant="secondary" size="sm" icon={<ArrowLeft />} disabled={selectedIndex<=0} onClick={()=>setSelectedIndex((value)=>Math.max(0,value-1))}>Bước trước</Button>
           <div className="flex min-w-[150px] flex-1 items-center gap-3"><div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-200"><div className="h-full rounded-full bg-primary transition-all" style={{width:`${((selectedIndex+1)/PIPELINE.length)*100}%`}} /></div><span className="whitespace-nowrap text-[13px] tabular text-slate-600">{selectedIndex+1} / 12</span></div>
           <Button size="sm" icon={<ArrowRight />} onClick={()=>setSelectedIndex((value)=>Math.min(PIPELINE.length-1,value+1))} disabled={selectedIndex>=PIPELINE.length-1}>Bước tiếp theo</Button>
