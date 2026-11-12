@@ -1,11 +1,8 @@
+// Keep the Google Fonts typeface available when the font CDN cannot be reached.
 import "@fontsource/be-vietnam-pro/400.css";
 import "@fontsource/be-vietnam-pro/500.css";
 import "@fontsource/be-vietnam-pro/600.css";
 import "@fontsource/be-vietnam-pro/700.css";
-import "@fontsource/source-serif-4/400.css";
-import "@fontsource/source-serif-4/600.css";
-import "@fontsource/ibm-plex-mono/400.css";
-import "@fontsource/ibm-plex-mono/500.css";
 import "./index.css";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -37,7 +34,7 @@ createRoot(document.getElementById("root")!).render(
             <App />
             <Toaster
               position="bottom-right"
-              toastOptions={{ className: "!rounded-md !border !border-slate-300 !bg-white !text-slate-900 !shadow-pop !font-sans" }}
+              toastOptions={{ className: "!rounded-xl !bg-white !text-text !shadow-sm !font-sans" }}
             />
           </ConfirmProvider>
         </AuthProvider>
