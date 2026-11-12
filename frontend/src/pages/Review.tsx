@@ -63,8 +63,8 @@ function SheetOverlay({
                   cy={y}
                   r={it.radius + 1}
                   className="cursor-pointer"
-                  fill={on ? "rgba(42,67,101,0.42)" : "transparent"}
-                  stroke={on ? "#2a4365" : "transparent"}
+                  fill={on ? "color-mix(in srgb, var(--color-primary) 42%, transparent)" : "transparent"}
+                  stroke={on ? "var(--color-primary-hover)" : "transparent"}
                   strokeWidth={2}
                   onClick={() => onDigit(it.block as "sbd" | "code", pos, it.labels[i])}
                   onMouseEnter={() => setHover({ x, y, text: `${it.block === "sbd" ? "SBD" : "Mã đề"} vị trí ${pos + 1} = ${it.labels[i]} · độ sáng ${it.values[i]}` })}
@@ -88,8 +88,8 @@ function SheetOverlay({
                   width={Math.max(...xs) - Math.min(...xs) + it.radius * 4.4}
                   height={it.radius * 3}
                   rx={6}
-                  fill={focusQ === q ? "rgba(29,28,25,0.06)" : "rgba(192,138,20,0.10)"}
-                  stroke={focusQ === q ? "#1d1c19" : "#c08a14"}
+                  fill={focusQ === q ? "color-mix(in srgb, var(--color-primary) 12%, transparent)" : "color-mix(in srgb, var(--color-warning) 15%, transparent)"}
+                  stroke={focusQ === q ? "var(--color-primary)" : "var(--color-warning)"}
                   strokeWidth={2}
                   strokeDasharray={focusQ === q ? undefined : "6 4"}
                 />
@@ -98,16 +98,16 @@ function SheetOverlay({
                 const opt = it.labels[i];
                 const chosen = a.includes(opt);
                 const isKey = k.includes(opt);
-                const fill = chosen ? (key ? (a === k ? "rgba(30,107,58,0.5)" : "rgba(200,64,31,0.5)") : "rgba(29,28,25,0.45)") : "transparent";
+                const fill = chosen ? (key ? (a === k ? "color-mix(in srgb, var(--color-success) 50%, transparent)" : "color-mix(in srgb, var(--color-danger) 50%, transparent)") : "color-mix(in srgb, var(--color-primary) 45%, transparent)") : "transparent";
                 return (
                   <g key={i}>
-                    {isKey && !chosen && <circle cx={x} cy={y} r={it.radius + 2.5} fill="none" stroke="#1e6b3a" strokeWidth={3} />}
+                    {isKey && !chosen && <circle cx={x} cy={y} r={it.radius + 2.5} fill="none" stroke="var(--color-success)" strokeWidth={3} />}
                     <circle
                       cx={x}
                       cy={y}
                       r={it.radius + 1}
                       fill={fill}
-                      stroke={chosen ? (key ? (a === k ? "#1e6b3a" : "#c8401f") : "#1d1c19") : "transparent"}
+                      stroke={chosen ? (key ? (a === k ? "var(--color-success)" : "var(--color-danger)") : "var(--color-navy)") : "transparent"}
                       strokeWidth={2}
                       className="cursor-pointer hover:stroke-slate-900"
                       onClick={(e) => onToggle(q, opt, e.shiftKey || e.ctrlKey)}
@@ -123,7 +123,7 @@ function SheetOverlay({
       </svg>
       {hover && (
         <div
-          className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-xs text-white shadow"
+          className="pointer-events-none absolute z-10 max-w-64 -translate-x-1/2 -translate-y-full rounded-lg bg-navy px-3 py-2 text-[13px] text-white shadow-sm"
           style={{ left: `${(hover.x / W) * 100}%`, top: `calc(${(hover.y / H) * 100}% - 14px)` }}
         >
           {hover.text}
@@ -141,11 +141,11 @@ function HistoryModal({ subId, open, onClose }: { subId: number; open: boolean; 
       <ol className="space-y-4">
         {data?.map((a) => (
           <li key={a.id} className="border-l border-slate-300 pl-4">
-            <div className="text-sm">
-              <b>{a.user || "Hệ thống"}</b> · {label[a.action] ?? a.action} <span className="text-slate-400">· {fmtDate(a.created_at)}</span>
+            <div className="text-[15px]">
+              <b>{a.user || "Hệ thống"}</b> · {label[a.action] ?? a.action} <span className="text-text-muted">· {fmtDate(a.created_at)}</span>
             </div>
             {a.action === "edit" && (
-              <ul className="mt-1 space-y-0.5 text-xs text-slate-600">
+              <ul className="mt-1 space-y-0.5 text-[13px] text-slate-600">
                 {"sbd" in a.detail && <li>SBD: {(a.detail.sbd as string[])[0]} → <b>{(a.detail.sbd as string[])[1]}</b></li>}
                 {"exam_code" in a.detail && <li>Mã đề: {(a.detail.exam_code as string[])[0]} → <b>{(a.detail.exam_code as string[])[1]}</b></li>}
                 {"answers" in a.detail &&
@@ -271,10 +271,10 @@ function ReviewBody({ sub, exam }: { sub: Submission; exam: Exam }) {
   return (
     <div className="animate-fade-in">
       <div className="mb-4 flex flex-wrap items-center gap-3">
-        <Link to={`/exams/${exam.id}/results${queue ? `?status=${queue}` : ""}`} className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800">
+        <Link to={`/exams/${exam.id}/results${queue ? `?status=${queue}` : ""}`} className="inline-flex items-center gap-1 text-[15px] text-slate-500 hover:text-slate-800">
           <ChevronLeft className="h-4 w-4" /> {exam.name}
         </Link>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex flex-wrap items-center gap-2">
           {queue === "review" && nb && <Badge tone="amber">Còn {nb.review_remaining} bài cần xem lại</Badge>}
           <Button variant="secondary" size="sm" disabled={!nb?.prev} onClick={() => nav(`/submissions/${nb!.prev}${queue ? `?queue=${queue}` : ""}`)} icon={<ChevronLeft className="h-4 w-4" />}>
             Trước
@@ -287,7 +287,7 @@ function ReviewBody({ sub, exam }: { sub: Submission; exam: Exam }) {
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_440px]">
         <Card className="overflow-hidden">
-          <div className="flex flex-wrap items-center gap-3 border-b border-slate-100 px-4 py-2.5">
+          <div className="flex flex-wrap items-center gap-3 border-b border-border px-4 py-2.5">
             <Segmented
               value={view}
               onChange={setView}
@@ -297,11 +297,11 @@ function ReviewBody({ sub, exam }: { sub: Submission; exam: Exam }) {
               ]}
             />
             <div className="ml-auto flex items-center gap-1">
-              <Button variant="ghost" size="icon" onClick={() => setZoom((z) => Math.max(1, z - 0.5))} disabled={zoom <= 1}>
+              <Button variant="ghost" size="icon" aria-label="Thu nhỏ ảnh" onClick={() => setZoom((z) => Math.max(1, z - 0.5))} disabled={zoom <= 1}>
                 <ZoomOut className="h-4 w-4" />
               </Button>
-              <span className="w-12 text-center text-xs tabular text-slate-500">{Math.round(zoom * 100)}%</span>
-              <Button variant="ghost" size="icon" onClick={() => setZoom((z) => Math.min(3, z + 0.5))} disabled={zoom >= 3}>
+              <span className="w-12 text-center text-[13px] tabular text-slate-500">{Math.round(zoom * 100)}%</span>
+              <Button variant="ghost" size="icon" aria-label="Phóng to ảnh" onClick={() => setZoom((z) => Math.min(3, z + 0.5))} disabled={zoom >= 3}>
                 <ZoomIn className="h-4 w-4" />
               </Button>
             </div>
@@ -325,32 +325,32 @@ function ReviewBody({ sub, exam }: { sub: Submission; exam: Exam }) {
           <Card>
             <div className="flex items-start gap-4 p-5">
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <StatusBadge status={sub.status} />
                   {sub.reviewed && <Badge tone="green"><CheckCircle2 className="h-3 w-3" /> Đã duyệt</Badge>}
-                  <span className="text-xs text-slate-400">#{sub.id}</span>
+                  <span className="text-[13px] text-text-muted">#{sub.id}</span>
                 </div>
                 <h2 className="mt-2 truncate text-lg font-semibold text-slate-900">{sub.student_name || "Không rõ thí sinh"}</h2>
-                <p className="text-sm text-slate-500">{sub.class_name || sub.source_name}</p>
+                <p className="text-[15px] text-slate-500">{sub.class_name || sub.source_name}</p>
               </div>
               <div className="text-right">
-                <div className={cn("font-display text-[46px] leading-none tabular", scoreColor(dirty ? liveScore : sub.score, exam.max_score))}>{fmtScore(dirty ? liveScore : sub.score)}</div>
-                <div className="text-xs text-slate-500">
+                <div className={cn("font-sans text-[46px] leading-none tabular", scoreColor(dirty ? liveScore : sub.score, exam.max_score))}>{fmtScore(dirty ? liveScore : sub.score)}</div>
+                <div className="text-[13px] text-slate-500">
                   {(dirty ? liveCorrect : sub.num_correct) ?? "—"}/{exam.num_questions} câu đúng
                 </div>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3 border-t border-slate-100 px-5 py-4">
+            <div className="grid grid-cols-2 gap-3 border-t border-border px-5 py-4">
               <label className="block">
-                <span className="mb-1 block text-xs font-medium text-slate-500">Số báo danh {sbd !== sub.omr_sbd && <span className="text-amber-600">(máy đọc: {sub.omr_sbd})</span>}</span>
-                <Input className="font-mono text-base tracking-widest" value={sbd} maxLength={6} onChange={(e) => setSbd(e.target.value.replace(/[^\d?*]/g, ""))} />
+                <span className="mb-1 block text-[13px] font-medium text-slate-500">Số báo danh {sbd !== sub.omr_sbd && <span className="text-text">(máy đọc: {sub.omr_sbd})</span>}</span>
+                <Input className="font-sans text-base tracking-widest" value={sbd} maxLength={6} onChange={(e) => setSbd(e.target.value.replace(/[^\d?*]/g, ""))} />
               </label>
               <label className="block">
-                <span className="mb-1 block text-xs font-medium text-slate-500">Mã đề {code !== sub.omr_exam_code && <span className="text-amber-600">(máy: {sub.omr_exam_code})</span>}</span>
-                <Input className="font-mono text-base tracking-widest" value={code} maxLength={3} onChange={(e) => setCode(e.target.value.replace(/[^\d?*]/g, ""))} />
+                <span className="mb-1 block text-[13px] font-medium text-slate-500">Mã đề {code !== sub.omr_exam_code && <span className="text-text">(máy: {sub.omr_exam_code})</span>}</span>
+                <Input className="font-sans text-base tracking-widest" value={code} maxLength={3} onChange={(e) => setCode(e.target.value.replace(/[^\d?*]/g, ""))} />
               </label>
             </div>
-            <div className="flex flex-wrap gap-2 border-t border-slate-100 bg-slate-50/60 px-5 py-3">
+            <div className="flex flex-wrap gap-2 border-t border-border bg-slate-50/60 px-5 py-3">
               <Button variant="success" icon={<CheckCircle2 className="h-4 w-4" />} loading={save.isPending && save.variables === true} onClick={() => save.mutate(true)}>
                 Duyệt{nb?.review_remaining ? " & tiếp" : ""}
               </Button>
@@ -368,14 +368,14 @@ function ReviewBody({ sub, exam }: { sub: Submission; exam: Exam }) {
           {(flags.length > 0 || warnings.length > 0 || sub.error) && (
             <Card>
               <CardHeader title={`Cần chú ý (${flags.length})`} />
-              <ul className="max-h-56 divide-y divide-slate-100 overflow-y-auto">
-                {sub.error && <li className="px-5 py-2 text-sm text-rose-600">{sub.error}</li>}
+              <ul className="max-h-56 divide-y divide-border overflow-y-auto">
+                {sub.error && <li className="px-5 py-2 text-[15px] text-rose-600">{sub.error}</li>}
                 {[...flags, ...warnings].map((f, i) => {
                   const q = f.field.startsWith("q") ? Number(f.field.slice(1)) - 1 : null;
                   return (
                     <li key={i}>
                       <button
-                        className="flex w-full items-center gap-2 px-5 py-2 text-left text-sm hover:bg-slate-50"
+                        className="flex w-full items-center gap-2 px-5 py-2 text-left text-[15px] hover:bg-primary-softer"
                         onClick={() => {
                           if (q !== null) {
                             setFocusQ(q);
@@ -401,7 +401,7 @@ function ReviewBody({ sub, exam }: { sub: Submission; exam: Exam }) {
               subtitle={
                 <span>
                   {sub.key ? "Xanh = đúng, đỏ = sai, viền xanh = đáp án đúng" : "Chưa có đáp án cho mã đề này"}
-                  {changed > 0 && <> · <b className="text-amber-700">{changed} câu đã sửa tay</b></>}
+                  {changed > 0 && <> · <b className="text-text">{changed} câu đã sửa tay</b></>}
                 </span>
               }
             />
@@ -410,7 +410,7 @@ function ReviewBody({ sub, exam }: { sub: Submission; exam: Exam }) {
             </div>
           </Card>
 
-          <Card className="p-4 text-xs text-slate-500">
+          <Card className="p-4 text-[13px] text-slate-500">
             <div className="grid grid-cols-2 gap-y-1">
               <span>Căn chỉnh</span>
               <span className="text-right text-slate-700">{sub.align_method || "—"} · xoay {sub.rotation}°</span>
@@ -425,7 +425,7 @@ function ReviewBody({ sub, exam }: { sub: Submission; exam: Exam }) {
               <span>Tải lên</span>
               <span className="text-right text-slate-700">{fmtDate(sub.created_at)}</span>
             </div>
-            <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 border-t border-slate-100 pt-3">
+            <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 border-t border-border pt-3">
               <span><Kbd>Ctrl</Kbd>+<Kbd>S</Kbd> lưu</span>
               <span><Kbd>Ctrl</Kbd>+<Kbd>Enter</Kbd> duyệt</span>
               <span><Kbd>Alt</Kbd>+<Kbd>←/→</Kbd> bài trước/sau</span>

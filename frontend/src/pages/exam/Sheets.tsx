@@ -23,7 +23,7 @@ export default function Sheets() {
             src={`/api/exams/${exam.id}/sheet.png?v=${exam.num_questions}-${exam.num_options}-${encodeURIComponent(exam.name)}`}
             onLoad={() => setLoaded(true)}
             alt="Phiếu trả lời"
-            className="w-full max-w-[640px] rounded shadow-lg ring-1 ring-slate-200"
+            className="w-full max-w-[640px] rounded shadow-sm ring-1 ring-slate-200"
           />
         </div>
       </Card>
@@ -45,11 +45,11 @@ export default function Sheets() {
                 </Button>
               </div>
             </div>
-            <div className="border-t border-slate-100 pt-5">
+            <div className="border-t border-border pt-5">
               <div className="mb-1 flex items-center gap-2 font-medium text-slate-800">
                 <UserSquare2 className="h-4 w-4 text-slate-500" /> Phiếu cá nhân hóa
               </div>
-              <p className="mb-3 text-sm text-slate-500">
+              <p className="mb-3 text-[15px] text-slate-500">
                 Mỗi thí sinh một trang, in sẵn họ tên, lớp, phòng và <b>tô sẵn SBD</b> — loại bỏ lỗi tô sai số báo danh.
               </p>
               <Button variant="secondary" className="w-full" disabled={!exam.num_students} onClick={() => open(`/api/exams/${exam.id}/sheet.pdf?personalized=true`)}>
@@ -63,7 +63,7 @@ export default function Sheets() {
           <div className="mb-3 flex items-center gap-2 font-medium text-slate-800">
             Lưu ý khi in và chụp
           </div>
-          <ul className="space-y-2 text-sm text-slate-600">
+          <ul className="space-y-2 text-[15px] text-slate-600">
             <li>• In đúng tỉ lệ 100% (tắt “Fit to page”), giấy trắng, mực đen.</li>
             <li>• Không làm bẩn / che 4 ô vuông đen ở góc phiếu — đó là marker để định vị.</li>
             <li>• Ô vuông góc trên-trái có lỗ trắng: giúp hệ thống tự nhận chiều phiếu khi ảnh bị xoay.</li>

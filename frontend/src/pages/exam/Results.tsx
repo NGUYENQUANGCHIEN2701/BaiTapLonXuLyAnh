@@ -42,9 +42,9 @@ export default function Results() {
 
   const th = (key: SortKey, label: string, right = false) => (
     <th className={cn("px-4 py-2.5", right && "text-right")}>
-      <button className="inline-flex items-center gap-1 hover:text-slate-900" onClick={() => setSort((s) => ({ key, dir: s.key === key ? (-s.dir as 1 | -1) : -1 }))}>
+      <button className="inline-flex items-center gap-1 hover:text-primary-hover" onClick={() => setSort((s) => ({ key, dir: s.key === key ? (-s.dir as 1 | -1) : -1 }))}>
         {label}
-        <ArrowDownUp className={cn("h-3 w-3", sort.key === key ? "text-slate-900" : "text-slate-300")} />
+        <ArrowDownUp className={cn("h-3 w-3", sort.key === key ? "text-slate-900" : "text-text-muted")} />
       </button>
     </th>
   );
@@ -66,11 +66,11 @@ export default function Results() {
           ]}
         />
         <div className="relative w-full max-w-xs">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
           <Input className="pl-9" placeholder="SBD, họ tên, tên file…" value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
         {firstReview && (
-          <Button className="ml-auto" variant="outline" icon={<PlayCircle className="h-4 w-4" />} onClick={() => nav(`/submissions/${firstReview.id}?queue=review`)}>
+          <Button className="ml-auto whitespace-normal text-left" icon={<PlayCircle className="h-4 w-4" />} onClick={() => nav(`/submissions/${firstReview.id}?queue=review`)}>
             Duyệt nhanh {counts.review} bài cần xem lại
           </Button>
         )}
@@ -83,8 +83,8 @@ export default function Results() {
             action={!data?.length && <Link to="../grade"><Button>Chấm bài</Button></Link>} />
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="border-b border-slate-200 text-left text-[12px] text-slate-500 [&_th]:font-normal">
+            <table className="w-full text-[15px]">
+              <thead className="border-b border-slate-200 text-left text-[13px] text-slate-500 [&_th]:font-normal">
                 <tr>
                   {th("id", "#")}
                   {th("sbd", "SBD")}
@@ -98,25 +98,25 @@ export default function Results() {
                   <th className="px-4 py-2.5">Thời gian</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-border">
                 {rows.map((s) => {
                   const kinds = [...new Set(s.flags.filter((f) => f.kind !== "warning").map((f) => f.kind))];
                   return (
-                    <tr key={s.id} className="cursor-pointer hover:bg-slate-50" onClick={() => nav(`/submissions/${s.id}${status ? `?queue=${status}` : ""}`)}>
-                      <td className="px-4 py-2.5 text-slate-400 tabular">{s.id}</td>
-                      <td className="px-4 py-2.5 font-mono font-medium tabular text-slate-800">{s.sbd || "—"}</td>
+                    <tr key={s.id} className="cursor-pointer hover:bg-primary-softer" onClick={() => nav(`/submissions/${s.id}${status ? `?queue=${status}` : ""}`)}>
+                      <td className="px-4 py-2.5 text-text-muted tabular">{s.id}</td>
+                      <td className="px-4 py-2.5 font-sans font-medium tabular text-slate-800">{s.sbd || "—"}</td>
                       <td className="px-4 py-2.5">
-                        <div className="font-medium text-slate-800">{s.student_name || <span className="text-slate-400">—</span>}</div>
-                        <div className="max-w-[220px] truncate text-xs text-slate-400">{s.class_name || s.source_name}</div>
+                        <div className="font-medium text-slate-800">{s.student_name || <span className="text-text-muted">—</span>}</div>
+                        <div className="max-w-[220px] truncate text-[13px] text-text-muted">{s.class_name || s.source_name}</div>
                       </td>
-                      <td className="px-4 py-2.5 font-mono tabular">{s.exam_code || "—"}</td>
+                      <td className="px-4 py-2.5 font-sans tabular">{s.exam_code || "—"}</td>
                       <td className="px-4 py-2.5 text-right tabular text-slate-600">{s.num_correct ?? "—"}/{exam.num_questions}</td>
                       <td className={`px-4 py-2.5 text-right text-base font-semibold tabular ${scoreColor(s.score, exam.max_score)}`}>{fmtScore(s.score)}</td>
                       <td className="px-4 py-2.5 text-right tabular text-slate-500">{s.status === "error" ? "—" : `${Math.round(s.confidence * 100)}%`}</td>
                       <td className="px-4 py-2.5">
                         <div className="flex max-w-[260px] flex-wrap gap-1">
                           {s.status === "error" ? (
-                            <span className="truncate text-xs text-rose-600" title={s.error}>{s.error}</span>
+                            <span className="truncate text-[13px] text-rose-600" title={s.error}>{s.error}</span>
                           ) : (
                             kinds.map((k) => (
                               <Badge key={k} tone={k === "duplicate" || k === "unknown_code" || k === "unknown_student" ? "red" : "amber"}>

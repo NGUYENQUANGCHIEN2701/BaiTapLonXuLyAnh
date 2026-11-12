@@ -13,10 +13,10 @@ type QItem = { id: number; file: File; state: "pending" | "uploading" | "done" |
 
 function ResultLine({ s, exam }: { s: SubmissionBrief; exam: Exam }) {
   return (
-    <Link to={`/submissions/${s.id}`} className="flex items-center gap-3 rounded-md px-2 py-1 text-sm hover:bg-slate-50">
-      <span className="font-mono tabular text-slate-700">{s.sbd || "??????"}</span>
+    <Link to={`/submissions/${s.id}`} className="flex flex-wrap items-center gap-3 rounded-lg px-2 py-2 text-[15px] hover:bg-primary-softer">
+      <span className="font-sans tabular text-slate-700">{s.sbd || "??????"}</span>
       <span className="truncate text-slate-600">{s.student_name || (s.status === "error" ? s.error : "—")}</span>
-      <span className="text-xs text-slate-400">mã {s.exam_code || "?"}</span>
+      <span className="text-[13px] text-text-muted">mã {s.exam_code || "?"}</span>
       <span className={cn("ml-auto font-semibold tabular", scoreColor(s.score, exam.max_score))}>{fmtScore(s.score)}</span>
       <StatusBadge status={s.status} />
     </Link>
@@ -84,7 +84,7 @@ function UploadMode({ exam }: { exam: Exam }) {
           <Upload className="h-6 w-6" />
         </div>
         <p className="font-medium text-slate-800">Kéo thả ảnh phiếu vào đây, hoặc bấm để chọn</p>
-        <p className="mt-1 text-sm text-slate-500">JPG, PNG, PDF quét nhiều trang · chọn nhiều file cùng lúc · trên điện thoại có thể chụp trực tiếp</p>
+        <p className="mt-1 text-[15px] text-slate-500">JPG, PNG, PDF quét nhiều trang · chọn nhiều file cùng lúc · trên điện thoại có thể chụp trực tiếp</p>
       </Dropzone>
 
       {queue.length > 0 && (
@@ -114,7 +114,7 @@ function UploadMode({ exam }: { exam: Exam }) {
           <div className="px-5 pt-3">
             <Progress value={queue.length ? done / queue.length : 0} />
           </div>
-          <ul className="max-h-[520px] divide-y divide-slate-100 overflow-y-auto p-2">
+          <ul className="max-h-[520px] divide-y divide-border overflow-y-auto p-2">
             {queue.map((it) => (
               <li key={it.id} className="px-3 py-2.5">
                 <div className="flex items-center gap-3">
@@ -125,13 +125,13 @@ function UploadMode({ exam }: { exam: Exam }) {
                   ) : it.state === "uploading" ? (
                     <Loader2 className="h-5 w-5 shrink-0 animate-spin text-slate-500" />
                   ) : (
-                    <FileImage className="h-5 w-5 shrink-0 text-slate-300" />
+                    <FileImage className="h-5 w-5 shrink-0 text-text-muted" />
                   )}
-                  <span className="truncate text-sm font-medium text-slate-700">{it.file.name}</span>
-                  <span className="ml-auto shrink-0 text-xs text-slate-400">{(it.file.size / 1024 / 1024).toFixed(1)} MB</span>
+                  <span className="truncate text-[15px] font-medium text-slate-700">{it.file.name}</span>
+                  <span className="ml-auto shrink-0 text-[13px] text-text-muted">{(it.file.size / 1024 / 1024).toFixed(1)} MB</span>
                 </div>
                 {it.state === "uploading" && <Progress value={it.progress < 1 ? it.progress * 0.8 : 0.9} className="ml-8 mt-2 h-1.5 w-auto" />}
-                {it.error && <p className="ml-8 mt-1 text-sm text-rose-600">{it.error}</p>}
+                {it.error && <p className="ml-8 mt-1 text-[15px] text-rose-600">{it.error}</p>}
                 {it.results && (
                   <div className="ml-6 mt-1">
                     {it.results.map((s) => (
@@ -272,16 +272,19 @@ function WebcamMode({ exam }: { exam: Exam }) {
     const h = vr > cr ? c.width / vr : c.height;
     const ox = (c.width - w) / 2;
     const oy = (c.height - h) / 2;
-    ctx.strokeStyle = "#22c55e";
+    const colors = getComputedStyle(document.documentElement);
+    ctx.strokeStyle = colors.getPropertyValue("--color-success");
     ctx.lineWidth = 4;
-    ctx.fillStyle = "rgba(34,197,94,0.12)";
+    ctx.fillStyle = colors.getPropertyValue("--color-success");
     ctx.beginPath();
     pts.forEach(([x, y], i) => (i ? ctx.lineTo(ox + x * w, oy + y * h) : ctx.moveTo(ox + x * w, oy + y * h)));
     ctx.closePath();
+    ctx.globalAlpha = 0.12;
     ctx.fill();
+    ctx.globalAlpha = 1;
     ctx.stroke();
     pts.forEach(([x, y], i) => {
-      ctx.fillStyle = i === 0 ? "#ef4444" : "#22c55e";
+      ctx.fillStyle = colors.getPropertyValue(i === 0 ? "--color-danger" : "--color-success");
       ctx.beginPath();
       ctx.arc(ox + x * w, oy + y * h, 8, 0, Math.PI * 2);
       ctx.fill();
@@ -291,15 +294,15 @@ function WebcamMode({ exam }: { exam: Exam }) {
   return (
     <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
       <Card className="overflow-hidden">
-        <div className="relative aspect-video bg-slate-900">
+        <div className="relative aspect-video min-h-[320px] bg-surface sm:min-h-0">
           <video ref={video} autoPlay playsInline muted className="h-full w-full object-contain" />
           <canvas ref={overlay} className="pointer-events-none absolute inset-0 h-full w-full" />
           {!stream && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-center text-slate-300">
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-5 text-center text-text-muted">
               <Camera className="h-10 w-10" />
-              <p className="max-w-sm text-sm">Đặt phiếu trước camera — hệ thống tự nhận 4 marker và chấm khi phiếu đứng yên.</p>
+              <p className="max-w-sm text-[15px]">Đặt phiếu trước camera — hệ thống tự nhận 4 marker và chấm khi phiếu đứng yên.</p>
               <Button onClick={() => start()} icon={<Camera className="h-4 w-4" />}>Bật camera</Button>
-              {error && <p className="max-w-md text-sm text-rose-300">{error}</p>}
+              {error && <p className="max-w-md text-[15px] text-rose-300">{error}</p>}
             </div>
           )}
           {stream && (
@@ -308,17 +311,17 @@ function WebcamMode({ exam }: { exam: Exam }) {
               {busy && <Badge tone="blue">Đang chấm…</Badge>}
             </div>
           )}
-          {stream && detected && !busy && <div className="scan-line pointer-events-none absolute left-0 right-0 h-0.5 bg-emerald-400/70 shadow-[0_0_12px_2px_rgba(52,211,153,0.6)]" />}
+          {stream && detected && !busy && <div className="scan-line pointer-events-none absolute left-0 right-0 h-0.5 bg-success" />}
         </div>
         {stream && (
-          <div className="flex flex-wrap items-center gap-3 border-t border-slate-100 p-3">
+          <div className="flex flex-wrap items-center gap-3 border-t border-border p-3">
             <Button onClick={capture} loading={busy} icon={<Camera className="h-4 w-4" />}>Chụp & chấm</Button>
-            <label className="flex items-center gap-2 text-sm text-slate-600">
+            <label className="flex items-center gap-2 text-[15px] text-slate-600">
               <input type="checkbox" checked={auto} onChange={(e) => setAuto(e.target.checked)} /> Tự động chụp khi phát hiện phiếu
             </label>
             {devices.length > 1 && (
               <select
-                className="ml-auto h-9 rounded-lg px-2 text-sm ring-1 ring-slate-300"
+                className="ml-auto h-9 rounded-lg px-2 text-[15px] ring-1 ring-slate-300"
                 value={deviceId}
                 onChange={(e) => {
                   setDeviceId(e.target.value);
@@ -337,7 +340,7 @@ function WebcamMode({ exam }: { exam: Exam }) {
       <Card>
         <CardHeader title="Vừa chấm" subtitle="Bấm để xem chi tiết / sửa" />
         <div className="p-2">
-          {!last.length && <p className="px-3 py-6 text-center text-sm text-slate-500">Chưa có bài nào.</p>}
+          {!last.length && <p className="px-3 py-6 text-center text-[15px] text-slate-500">Chưa có bài nào.</p>}
           {last.map((s) => (
             <ResultLine key={s.id} s={s} exam={exam} />
           ))}

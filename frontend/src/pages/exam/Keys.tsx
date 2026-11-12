@@ -33,7 +33,7 @@ export function AnswerGrid({
     onChange(next);
   };
   return (
-    <div className="grid gap-x-6 gap-y-1" style={{ gridTemplateColumns: `repeat(${Math.min(cols, 4)}, minmax(0, 1fr))` }}>
+    <div className="grid gap-x-6 gap-y-1" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))" }}>
       {Array.from({ length: cols }).map((_, c) => (
         <div key={c} className="space-y-0.5">
           {Array.from({ length: perCol }).map((_, r) => {
@@ -71,7 +71,7 @@ export function AnswerGrid({
                   wrong && "bg-rose-50",
                 )}
               >
-                <span className="w-7 text-right text-xs font-semibold text-slate-500 tabular">{q + 1}</span>
+                <span className="w-7 text-right text-[13px] font-semibold text-slate-500 tabular">{q + 1}</span>
                 {opts.map((o) => {
                   const on = a.includes(o);
                   const isKey = k?.includes(o);
@@ -83,16 +83,16 @@ export function AnswerGrid({
                       disabled={readOnly}
                       onClick={(e) => set(q, o, e.shiftKey || e.ctrlKey)}
                       className={cn(
-                        "flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-semibold ring-1 transition-colors",
+                        "flex h-6 w-6 items-center justify-center rounded-full text-[13px] font-semibold ring-1 transition-colors",
                         on
                           ? compare
                             ? a === k
-                              ? "bg-emerald-600 text-white ring-emerald-600"
-                              : "bg-rose-600 text-white ring-rose-600"
-                            : "bg-slate-800 text-white ring-slate-800"
+                              ? "bg-success-soft text-text ring-success"
+                              : "bg-danger-soft text-text ring-danger"
+                            : "bg-primary-soft text-primary-hover ring-primary"
                           : isKey && compare
-                            ? "bg-white text-emerald-700 ring-2 ring-emerald-500"
-                            : "bg-white text-slate-400 ring-slate-300 hover:ring-slate-500",
+                            ? "bg-white text-text ring-2 ring-success"
+                            : "bg-white text-text-muted ring-slate-300 hover:ring-slate-500",
                         !readOnly && "cursor-pointer",
                       )}
                     >
@@ -174,7 +174,7 @@ function KeyEditor({ exam, initial, onDone }: { exam: Exam; initial?: AnswerKey 
           </Button>
         }
       >
-        <Textarea rows={5} value={paste} onChange={(e) => setPaste(e.target.value)} className="font-mono" autoFocus />
+        <Textarea rows={5} value={paste} onChange={(e) => setPaste(e.target.value)} className="font-sans" autoFocus />
       </Modal>
     </Card>
   );
@@ -246,30 +246,30 @@ export default function Keys() {
       <div className="space-y-4">
         <Card>
           <CardHeader title="Mã đề" subtitle={`${keys?.length ?? 0} mã đề`} />
-          <ul className="divide-y divide-slate-100">
+          <ul className="divide-y divide-border">
             {keys?.map((k) => {
               const n = k.answers.filter(Boolean).length;
               const active = selected && "id" in selected && selected.id === k.id;
               return (
-                <li key={k.id} className={cn("group flex items-center gap-3 px-4 py-2.5", active ? "bg-brand-50" : "hover:bg-slate-50")}>
+                <li key={k.id} className={cn("group flex items-center gap-3 px-4 py-2.5", active ? "bg-brand-50" : "hover:bg-primary-softer")}>
                   <button className="flex flex-1 items-center gap-3 text-left" onClick={() => setSelected(k)}>
-                    <span className="flex h-9 w-12 items-center justify-center rounded-md bg-slate-800 font-mono text-sm font-semibold text-white">{k.code}</span>
-                    <span className="text-sm">
+                    <span className="flex h-10 w-12 items-center justify-center rounded-lg bg-primary-soft font-sans text-[15px] font-semibold text-primary-hover">{k.code}</span>
+                    <span className="text-[15px]">
                       <span className="block font-medium text-slate-800">Mã đề {k.code}</span>
-                      <span className={cn("text-xs", n < exam.num_questions ? "text-amber-600" : "text-slate-500")}>
+                      <span className={cn("text-[13px]", n < exam.num_questions ? "text-text" : "text-slate-500")}>
                         {n}/{exam.num_questions} câu
                       </span>
                     </span>
                   </button>
-                  <button onClick={() => remove(k)} className="rounded p-1 text-slate-300 opacity-0 hover:bg-rose-50 hover:text-rose-600 group-hover:opacity-100" title="Xóa">
+                  <button onClick={() => remove(k)} className="rounded p-1 text-text-muted opacity-0 hover:bg-rose-50 hover:text-rose-600 group-hover:opacity-100 group-focus-within:opacity-100" title="Xóa">
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </li>
               );
             })}
           </ul>
-          <div className="space-y-2 border-t border-slate-100 p-3">
-            <Button className="w-full" icon={<Plus className="h-4 w-4" />} onClick={() => setSelected({ code: "", answers: [] })}>
+          <div className="space-y-2 border-t border-border p-3">
+            <Button variant="secondary" className="w-full" icon={<Plus className="h-4 w-4" />} onClick={() => setSelected({ code: "", answers: [] })}>
               Thêm mã đề
             </Button>
             <Button variant="secondary" className="w-full" icon={<FileSpreadsheet className="h-4 w-4" />} onClick={() => setImportOpen(true)}>
@@ -302,20 +302,20 @@ export default function Keys() {
       <Modal open={importOpen} onClose={() => setImportOpen(false)} title="Nhập đáp án" size="lg">
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <h4 className="mb-2 flex items-center gap-2 text-sm font-semibold"><FileSpreadsheet className="h-4 w-4 text-emerald-600" /> Từ file Excel / CSV</h4>
+            <h4 className="mb-2 flex items-center gap-2 text-[15px] font-semibold"><FileSpreadsheet className="h-4 w-4 text-primary" /> Từ file Excel / CSV</h4>
             <Dropzone accept=".xlsx,.csv" multiple={false} onFiles={importFile} className="p-6 text-center">
-              <p className="text-sm text-slate-600">Kéo thả hoặc bấm để chọn file</p>
-              <p className="mt-1 text-xs text-slate-400">Cột “Câu” + mỗi cột một mã đề</p>
+              <p className="text-[15px] text-slate-600">Kéo thả hoặc bấm để chọn file</p>
+              <p className="mt-1 text-[13px] text-text-muted">Cột “Câu” + mỗi cột một mã đề</p>
             </Dropzone>
-            <button className="mt-2 text-xs font-medium text-brand-700 hover:underline" onClick={() => downloadUrl(`/api/exams/${exam.id}/keys/template.xlsx`)}>
+            <button className="mt-2 text-[13px] font-medium text-brand-700 hover:underline" onClick={() => downloadUrl(`/api/exams/${exam.id}/keys/template.xlsx`)}>
               Tải file mẫu
             </button>
           </div>
           <div>
-            <h4 className="mb-2 flex items-center gap-2 text-sm font-semibold"><Camera className="h-4 w-4 text-brand-600" /> Từ ảnh phiếu đáp án</h4>
+            <h4 className="mb-2 flex items-center gap-2 text-[15px] font-semibold"><Camera className="h-4 w-4 text-brand-600" /> Từ ảnh phiếu đáp án</h4>
             <Dropzone accept="image/*,.pdf" multiple={false} onFiles={fromSheet} className="p-6 text-center">
-              {sheetBusy ? <p className="text-sm text-slate-600">Đang đọc phiếu…</p> : <p className="text-sm text-slate-600">Tô đáp án + mã đề lên phiếu trắng, rồi chụp ảnh</p>}
-              <p className="mt-1 text-xs text-slate-400">JPG, PNG hoặc PDF</p>
+              {sheetBusy ? <p className="text-[15px] text-slate-600">Đang đọc phiếu…</p> : <p className="text-[15px] text-slate-600">Tô đáp án + mã đề lên phiếu trắng, rồi chụp ảnh</p>}
+              <p className="mt-1 text-[13px] text-text-muted">JPG, PNG hoặc PDF</p>
             </Dropzone>
             <Badge tone="blue" className="mt-2">Dùng chính bộ xử lý ảnh OMR</Badge>
           </div>

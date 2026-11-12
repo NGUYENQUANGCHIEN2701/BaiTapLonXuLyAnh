@@ -79,18 +79,18 @@ export default function Students() {
     <div>
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <div className="relative w-full max-w-xs">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
           <Input className="pl-9" placeholder="Tìm SBD hoặc họ tên…" value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
         {classes.length > 1 && (
-          <select className="h-9 rounded-lg border-0 bg-white px-3 text-sm shadow-sm ring-1 ring-slate-300" value={cls} onChange={(e) => setCls(e.target.value)}>
+          <select className="h-9 rounded-lg border-0 bg-white px-3 text-[15px] shadow-sm ring-1 ring-slate-300" value={cls} onChange={(e) => setCls(e.target.value)}>
             <option value="">Tất cả lớp</option>
             {classes.map((c) => (
               <option key={c}>{c}</option>
             ))}
           </select>
         )}
-        <span className="text-sm text-slate-500">
+        <span className="text-[15px] text-slate-500">
           {data?.length ?? 0} thí sinh · {submitted} đã có bài
         </span>
         <div className="ml-auto flex gap-2">
@@ -109,12 +109,12 @@ export default function Students() {
             icon={<Users className="h-6 w-6" />}
             title="Chưa có danh sách thí sinh"
             description="Không bắt buộc, nhưng có danh sách thì hệ thống tự ghép họ tên theo SBD, phát hiện SBD tô sai và in được phiếu cá nhân hóa."
-            action={<Button icon={<FileSpreadsheet className="h-4 w-4" />} onClick={() => setImportOpen(true)}>Nhập từ Excel</Button>}
+            action={<Button variant="secondary" icon={<FileSpreadsheet className="h-4 w-4" />} onClick={() => setImportOpen(true)}>Nhập từ Excel</Button>}
           />
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="border-b border-slate-200 text-left text-[12px] text-slate-500 [&_th]:font-normal">
+            <table className="w-full text-[15px]">
+              <thead className="border-b border-slate-200 text-left text-[13px] text-slate-500 [&_th]:font-normal">
                 <tr>
                   <th className="px-4 py-2.5">SBD</th>
                   <th className="px-4 py-2.5">Họ tên</th>
@@ -126,10 +126,10 @@ export default function Students() {
                   <th className="w-20" />
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-border">
                 {rows.map((s) => (
-                  <tr key={s.id} className="group hover:bg-slate-50">
-                    <td className="px-4 py-2.5 font-mono tabular">{s.sbd}</td>
+                  <tr key={s.id} className="group hover:bg-primary-softer">
+                    <td className="px-4 py-2.5 font-sans tabular">{s.sbd}</td>
                     <td className="px-4 py-2.5 font-medium text-slate-800">{s.full_name}</td>
                     <td className="px-4 py-2.5 text-slate-600">{s.dob}</td>
                     <td className="px-4 py-2.5 text-slate-600">{s.class_name}</td>
@@ -139,11 +139,11 @@ export default function Students() {
                     </td>
                     <td className="px-4 py-2.5"><StatusBadge status={s.status} /></td>
                     <td className="px-2 py-2.5 text-right">
-                      <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100">
-                        <button className="rounded p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700" onClick={() => setEditing(s)} title="Sửa">
+                      <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100">
+                        <button className="rounded p-1.5 text-text-muted hover:bg-primary-softer hover:text-slate-700" onClick={() => setEditing(s)} title="Sửa">
                           <Pencil className="h-4 w-4" />
                         </button>
-                        <button className="rounded p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600" onClick={() => remove(s)} title="Xóa">
+                        <button className="rounded p-1.5 text-text-muted hover:bg-rose-50 hover:text-rose-600" onClick={() => remove(s)} title="Xóa">
                           <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
@@ -188,14 +188,14 @@ export default function Students() {
 
       <Modal open={importOpen} onClose={() => setImportOpen(false)} title="Nhập danh sách thí sinh" description="File Excel (.xlsx) hoặc CSV có dòng tiêu đề: SBD, Họ tên, Ngày sinh, Lớp, Phòng thi.">
         <Dropzone accept=".xlsx,.csv" multiple={false} onFiles={importFile} className="p-8 text-center">
-          <FileSpreadsheet className="mx-auto mb-2 h-8 w-8 text-emerald-600" />
-          <p className="text-sm text-slate-600">Kéo thả file vào đây hoặc bấm để chọn</p>
+          <FileSpreadsheet className="mx-auto mb-2 h-8 w-8 text-primary" />
+          <p className="text-[15px] text-slate-600">Kéo thả file vào đây hoặc bấm để chọn</p>
         </Dropzone>
         <div className="mt-3 flex items-center justify-between">
-          <label className="flex items-center gap-2 text-sm text-slate-600">
+          <label className="flex items-center gap-2 text-[15px] text-slate-600">
             <input type="checkbox" checked={replace} onChange={(e) => setReplace(e.target.checked)} className="rounded" /> Thay thế toàn bộ danh sách cũ
           </label>
-          <button className="text-sm font-medium text-brand-700 hover:underline" onClick={() => downloadUrl(`/api/exams/${exam.id}/students/template.xlsx`)}>
+          <button className="text-[15px] font-medium text-brand-700 hover:underline" onClick={() => downloadUrl(`/api/exams/${exam.id}/students/template.xlsx`)}>
             Tải file mẫu
           </button>
         </div>

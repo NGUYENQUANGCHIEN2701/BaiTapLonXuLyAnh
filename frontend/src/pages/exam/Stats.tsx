@@ -23,7 +23,7 @@ import type { ExamStats, ItemStat } from "../../lib/types";
 import { cn, fmtPct, fmtScore } from "../../lib/utils";
 import { useExam } from "./ExamLayout";
 
-const OPT_COLORS = ["#5f5b50", "#8a8576", "#a39e91", "#77736a", "#b3ae9f", "#58554e"];
+const OPT_COLORS = ["var(--color-navy)", "var(--color-primary-hover)", "var(--color-primary-soft)", "var(--color-primary-softer)", "var(--color-surface)", "var(--color-border)"];
 
 function OptionBar({ it, options }: { it: ItemStat; options: string[] }) {
   const total = options.reduce((s, o) => s + it.options[o], 0) + it.blank + it.multi || 1;
@@ -36,8 +36,8 @@ function OptionBar({ it, options }: { it: ItemStat; options: string[] }) {
           <div
             key={o}
             title={`${o}: ${it.options[o]}`}
-            className={cn("flex items-center justify-center text-[10px] font-semibold text-white", o === it.key && "font-bold")}
-            style={{ width: `${w}%`, background: o === it.key ? "#1e6b3a" : OPT_COLORS[i] }}
+            className={cn("flex items-center justify-center text-[13px] font-semibold", o === it.key ? "font-bold text-text" : i < 2 ? "text-white" : "text-text")}
+            style={{ width: `${w}%`, background: o === it.key ? "var(--color-success-soft)" : OPT_COLORS[i] }}
           >
             {w > 9 && o}
           </div>
@@ -86,13 +86,13 @@ export default function Stats() {
           <div className="h-72 px-2 py-4">
             <ResponsiveContainer>
               <BarChart data={data.histogram} margin={{ left: -16, right: 12 }}>
-                <CartesianGrid vertical={false} stroke="#eef2f7" />
+                <CartesianGrid vertical={false} stroke="var(--color-border)" />
                 <XAxis dataKey="range" tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
                 <YAxis allowDecimals={false} tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
-                <Tooltip cursor={{ fill: "#f1f5f9" }} formatter={(v: number) => [v, "Thí sinh"]} />
+                <Tooltip cursor={{ fill: "var(--color-surface)" }} formatter={(v: number) => [v, "Thí sinh"]} />
                 <Bar dataKey="count" radius={[3, 3, 0, 0]}>
                   {data.histogram.map((h, i) => (
-                    <Cell key={i} fill={h.from + o.max_score / 10 <= passLine ? "#c8401f" : "#24231f"} />
+                    <Cell key={i} fill={h.from + o.max_score / 10 <= passLine ? "var(--color-danger)" : "var(--color-primary)"} />
                   ))}
                 </Bar>
               </BarChart>
@@ -101,16 +101,16 @@ export default function Stats() {
         </Card>
         <Card>
           <CardHeader title="Điểm cao nhất" />
-          <ol className="divide-y divide-slate-100">
+          <ol className="divide-y divide-border">
             {data.top.slice(0, 7).map((t, i) => (
               <li key={t.submission_id}>
-                <Link to={`/submissions/${t.submission_id}`} className="flex items-center gap-3 px-5 py-2 text-sm hover:bg-slate-50">
-                  <span className={cn("flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold", i < 3 ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-500")}>{i + 1}</span>
+                <Link to={`/submissions/${t.submission_id}`} className="flex items-center gap-3 px-5 py-2 text-[15px] hover:bg-primary-softer">
+                  <span className={cn("flex h-7 w-7 items-center justify-center rounded-full text-[13px] font-semibold", i < 3 ? "bg-primary-soft text-primary-hover" : "bg-surface text-text-muted")}>{i + 1}</span>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-medium text-slate-800">{t.name || `SBD ${t.sbd}`}</span>
-                    <span className="text-xs text-slate-400">{t.class_name || t.sbd}</span>
+                    <span className="text-[13px] text-text-muted">{t.class_name || t.sbd}</span>
                   </span>
-                  <span className="font-display text-[17px] tabular">{fmtScore(t.score)}</span>
+                  <span className="font-sans text-[17px] tabular">{fmtScore(t.score)}</span>
                 </Link>
               </li>
             ))}
@@ -124,12 +124,12 @@ export default function Stats() {
           <div className="h-64 px-2 py-4">
             <ResponsiveContainer>
               <BarChart data={data.by_class} layout="vertical" margin={{ left: 8, right: 24 }}>
-                <CartesianGrid horizontal={false} stroke="#eef2f7" />
+                <CartesianGrid horizontal={false} stroke="var(--color-border)" />
                 <XAxis type="number" domain={[0, o.max_score]} tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
                 <YAxis type="category" dataKey="name" width={90} tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
                 <Tooltip formatter={(v: number, n: string) => [n === "mean" ? fmtScore(v) : v, n === "mean" ? "Điểm TB" : n]} />
-                <ReferenceLine x={passLine} stroke="#c8401f" strokeDasharray="4 4" />
-                <Bar dataKey="mean" fill="#24231f" radius={[0, 3, 3, 0]} barSize={16} />
+                <ReferenceLine x={passLine} stroke="var(--color-danger)" strokeDasharray="4 4" />
+                <Bar dataKey="mean" fill="var(--color-primary)" radius={[0, 3, 3, 0]} barSize={16} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -142,25 +142,25 @@ export default function Stats() {
           <div className="h-64 px-2 py-4">
             <ResponsiveContainer>
               <ScatterChart margin={{ left: -10, right: 16, top: 4 }}>
-                <CartesianGrid stroke="#eef2f7" />
-                <ReferenceArea x1={0.3} x2={0.8} y1={0.3} y2={1} fill="#1e6b3a" fillOpacity={0.07} />
+                <CartesianGrid stroke="var(--color-border)" />
+                <ReferenceArea x1={0.3} x2={0.8} y1={0.3} y2={1} fill="var(--color-primary-soft)" fillOpacity={1} />
                 <XAxis type="number" dataKey="p" name="Tỉ lệ đúng" domain={[0, 1]} tick={{ fontSize: 12 }} tickFormatter={(v) => `${v * 100}%`} />
                 <YAxis type="number" dataKey="d" name="Độ phân biệt" domain={[-0.5, 1]} tick={{ fontSize: 12 }} />
                 <ZAxis range={[50, 50]} />
-                <ReferenceLine y={0.2} stroke="#c08a14" strokeDasharray="4 4" />
+                <ReferenceLine y={0.2} stroke="var(--color-warning)" strokeDasharray="4 4" />
                 <Tooltip
                   cursor={{ strokeDasharray: "3 3" }}
                   content={({ payload }) => {
                     const it = payload?.[0]?.payload as ItemStat | undefined;
                     if (!it) return null;
                     return (
-                      <div className="rounded-lg bg-white px-3 py-2 text-xs shadow-pop ring-1 ring-slate-200">
+                      <div className="rounded-lg bg-white px-3 py-2 text-[13px] shadow-sm ring-1 ring-slate-200">
                         <b>Câu {it.q}</b> (đáp án {it.key}) — đúng {fmtPct(it.p)}, D = {it.d}
                       </div>
                     );
                   }}
                 />
-                <Scatter data={data.items.filter((i) => i.d !== null)} fill="#24231f" fillOpacity={0.8} />
+                <Scatter data={data.items.filter((i) => i.d !== null)} fill="var(--color-primary)" fillOpacity={1} />
               </ScatterChart>
             </ResponsiveContainer>
           </div>
@@ -177,7 +177,7 @@ export default function Stats() {
           }
           actions={
             data.codes.length > 0 && (
-              <div className="flex items-center gap-2 text-sm text-slate-500">
+              <div className="flex items-center gap-2 text-[15px] text-slate-500">
                 Mã đề
                 <Select className="w-28" value={data.item_code ?? ""} onChange={(e) => setCode(e.target.value)}>
                   {data.codes.map((c) => (
@@ -189,8 +189,8 @@ export default function Stats() {
           }
         />
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="border-b border-slate-200 text-left text-[12px] text-slate-500 [&_th]:font-normal">
+          <table className="w-full text-[15px]">
+            <thead className="border-b border-slate-200 text-left text-[13px] text-slate-500 [&_th]:font-normal">
               <tr>
                 <th className="px-4 py-2.5">Câu</th>
                 <th className="px-4 py-2.5">Đáp án</th>
@@ -202,12 +202,12 @@ export default function Stats() {
                 <th className="px-4 py-2.5">Nhiễu mạnh nhất</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-border">
               {data.items.map((it) => (
                 <tr key={it.q} className={cn(it.d !== null && it.d < 0.2 && "bg-amber-50/40")}>
                   <td className="px-4 py-2 font-semibold tabular">{it.q}</td>
                   <td className="px-4 py-2">
-                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-emerald-600 font-mono text-xs font-medium text-emerald-700">{it.key || "?"}</span>
+                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-primary bg-primary-soft font-sans text-[13px] font-medium text-primary-hover">{it.key || "?"}</span>
                   </td>
                   <td className="px-4 py-2 text-right tabular">{fmtPct(it.p)}</td>
                   <td className="px-4 py-2"><Badge tone={diffTone(it.p)}>{it.difficulty}</Badge></td>
@@ -217,7 +217,7 @@ export default function Stats() {
                   <td className="px-4 py-2 text-slate-600">
                     {it.top_distractor && it.options[it.top_distractor] > 0 ? (
                       <>
-                        {it.top_distractor} <span className="text-slate-400">({it.options[it.top_distractor]})</span>
+                        {it.top_distractor} <span className="text-text-muted">({it.options[it.top_distractor]})</span>
                       </>
                     ) : (
                       "—"
