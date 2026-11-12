@@ -100,12 +100,12 @@ export default function Lab() {
   const title=active?.title??PIPELINE[selectedIndex]?.label??PIPELINE[0].label;
 
   return <div className="lab-workspace">
-    <section className="relative mb-4 grid min-h-[142px] items-center overflow-hidden rounded-2xl bg-primary-softer px-5 py-5 sm:px-7 lg:grid-cols-[1fr_450px] lg:px-8">
+    <section className="relative mb-4 grid min-h-[142px] items-center overflow-hidden rounded-2xl bg-primary-softer px-5 py-5 sm:px-7 2xl:grid-cols-[1fr_450px] lg:px-8">
       <div className="relative z-[1] flex items-start gap-4"><span className="flex h-[66px] w-[66px] shrink-0 items-center justify-center rounded-2xl bg-primary-soft text-primary"><FlaskConical className="h-9 w-9" /></span><div><h1 className="text-[30px] font-bold leading-tight tracking-tight text-navy sm:text-[38px]">Phòng thí nghiệm xử lý ảnh</h1><p className="mt-1 max-w-[680px] text-[14px] leading-6 text-slate-600 sm:text-[15px]">Thử nghiệm và tinh chỉnh pipeline OMR với 12 bước xử lý ảnh.</p></div></div>
-      <div className="pointer-events-none absolute bottom-0 right-0 top-0 hidden w-[48%] items-center justify-end lg:flex"><LabHeroArt /></div>
+      <div className="pointer-events-none absolute bottom-0 right-0 top-0 hidden w-[48%] items-center justify-end 2xl:flex"><LabHeroArt /></div>
     </section>
 
-    <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(270px,.9fr)_minmax(300px,1.05fr)_minmax(0,1.8fr)]">
+    <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(280px,.9fr)_minmax(0,1.8fr)] 2xl:grid-cols-[minmax(280px,.86fr)_minmax(320px,1fr)_minmax(0,1.8fr)]">
       <Card className="min-w-0 overflow-hidden">
         <CardHeader title={<span className="flex items-center gap-2"><ImageUp className="h-5 w-5 text-primary" />Ảnh đầu vào</span>} />
         <div className="space-y-4 p-4">
@@ -113,7 +113,7 @@ export default function Lab() {
             <ImageUp className="mx-auto mb-2 h-9 w-9 text-primary" /><p className="text-[14px] font-semibold text-navy">Chọn ảnh phiếu để phân tích</p><p className="mt-1 text-[13px] text-slate-500">Hoặc kéo thả ảnh vào đây</p>
           </Dropzone>
           <Button variant="secondary" className="w-full" icon={<ScanLine />} onClick={sample} disabled={busy}><span>Sử dụng ảnh mẫu</span></Button>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 2xl:grid-cols-2">
             <Field label="Số câu" hint="Dùng khi QR không đọc được"><Input aria-label="Số câu" type="number" min={1} max={120} value={nq} onChange={(event)=>setNq(Math.max(1,Math.min(120,Number(event.target.value)||1)))} /></Field>
             <Field label={`Độ khó ảnh: ${strength.toFixed(1)}`} hint="Nghiêng, bóng, mờ"><input aria-label="Độ khó ảnh" type="range" min={0} max={1.6} step={0.1} value={strength} onChange={(event)=>setStrength(Number(event.target.value))} className="mt-3 w-full accent-primary" /><span className="block text-[12px] text-text-muted">{strength<.5?"Nhẹ":strength<1.1?"Trung bình":"Nhiều nhiễu"}</span></Field>
           </div>
@@ -123,7 +123,7 @@ export default function Lab() {
         </div>
       </Card>
 
-      <Card className="min-w-0 overflow-hidden">
+      <Card className="min-w-0 overflow-hidden xl:col-span-2 xl:row-start-2 2xl:col-span-1 2xl:row-start-auto">
         <CardHeader title={<span className="flex items-center gap-2"><span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-soft text-primary"><Settings className="h-4 w-4" /></span>Quy trình xử lý ảnh (12 bước)</span>} />
         <ol className="relative max-h-[680px] space-y-1 overflow-y-auto px-3 py-3 sm:px-4">{PIPELINE.map((step,stepIndex)=>{
           const isActive=selectedIndex===stepIndex;
@@ -132,14 +132,14 @@ export default function Lab() {
             {stepIndex<PIPELINE.length-1&&<span aria-hidden className={`absolute bottom-[-6px] left-[10px] top-8 w-0.5 ${done?"bg-success":"bg-border"}`} />}
             <button aria-current={isActive?"step":undefined} aria-label={`Bước ${stepIndex+1}: ${step.label}`} onClick={()=>setSelectedIndex(stepIndex)} className={cn("relative z-[1] flex min-h-[45px] w-full items-center gap-3 rounded-xl px-2.5 py-2 text-left transition-colors",isActive?"bg-primary font-semibold text-white shadow-sm":"border border-border bg-white text-slate-700 hover:bg-primary-softer")}>
               <span className={cn("flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full",isActive?"border-2 border-white text-white":done?"bg-success text-white":"border-2 border-slate-300 bg-white text-slate-400")}>{isActive?<span className="h-2.5 w-2.5 rounded-full bg-white"/>:done?<Check className="h-4 w-4"/>:<Circle className="h-3 w-3"/>}</span>
-              <span className="min-w-0 truncate text-[13px]"><b>{stepIndex+1}. {step.label}</b>{result?.steps.find((item)=>item.key===step.key)?.description&&<span className={cn("font-normal",isActive?"text-blue-50":"text-slate-500")}> · {result.steps.find((item)=>item.key===step.key)?.description}</span>}</span>
+              <span className="min-w-0 text-[13px] leading-5"><b>{stepIndex+1}. {step.label}</b></span>
             </button>
           </li>;
         })}</ol>
         <div className="border-t border-border bg-surface px-4 py-3 text-[12px] text-slate-600">{result?`${steps.length} / 12 bước đã chạy`:"Tải ảnh lên để xem kết quả từng bước."}</div>
       </Card>
 
-      <Card className="min-w-0 overflow-hidden">
+      <Card className="min-w-0 overflow-hidden xl:col-start-2 xl:row-start-1 2xl:col-start-auto 2xl:row-start-auto">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-4 sm:px-5">
           <div className="flex min-w-0 items-center gap-3"><Badge tone="blue">Bước {selectedIndex+1} / 12</Badge><div className="min-w-0"><h2 className="truncate text-[18px] font-bold text-navy">{title}</h2><p className="mt-0.5 line-clamp-2 text-[13px] text-slate-600">{active?.description??PIPELINE[selectedIndex]?.short}</p></div></div>
           {active&&<Badge tone="gray"><Clock3 className="h-3.5 w-3.5" />{active.ms.toFixed(1)} ms</Badge>}
