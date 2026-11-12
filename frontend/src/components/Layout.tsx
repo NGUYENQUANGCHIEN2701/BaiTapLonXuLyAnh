@@ -102,10 +102,12 @@ export default function Layout() {
   const isExamDetail = loc.pathname.startsWith("/exams/");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [pwOpen, setPwOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
   const searchWrapRef = useRef<HTMLDivElement>(null);
+  const accountMenuRef = useRef<HTMLDivElement>(null);
   const { data: exams } = useQuery({ queryKey: ["exams"], queryFn: () => api.get<Exam[]>("/api/exams") });
   const { data: dashboard } = useQuery({ queryKey: ["dashboard"], queryFn: () => api.get<Dashboard>("/api/dashboard"), enabled: !!searchText.trim() });
   const reviewTotal = exams?.reduce((s, e) => s + e.num_review, 0) ?? 0;
@@ -113,7 +115,7 @@ export default function Layout() {
   const examMatches = normalizedSearch ? (exams ?? []).filter((e) => `${e.name} ${e.subject ?? ""}`.toLocaleLowerCase("vi").includes(normalizedSearch)).slice(0, 4) : [];
   const submissionMatches = normalizedSearch ? (dashboard?.recent ?? []).filter((s) => `${s.name ?? ""} ${s.sbd ?? ""} ${s.exam_name}`.toLocaleLowerCase("vi").includes(normalizedSearch)).slice(0, 4) : [];
 
-  useEffect(() => setMobileOpen(false), [loc.pathname]);
+  useEffect(() => { setMobileOpen(false); setAccountOpen(false); }, [loc.pathname]);
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
@@ -121,10 +123,11 @@ export default function Layout() {
         searchRef.current?.focus();
         setSearchOpen(true);
       }
-      if (event.key === "Escape") setSearchOpen(false);
+      if (event.key === "Escape") { setSearchOpen(false); setAccountOpen(false); }
     };
     const onPointerDown = (event: PointerEvent) => {
       if (event.target instanceof Node && !searchWrapRef.current?.contains(event.target)) setSearchOpen(false);
+      if (event.target instanceof Node && !accountMenuRef.current?.contains(event.target)) setAccountOpen(false);
     };
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("pointerdown", onPointerDown);
@@ -133,6 +136,12 @@ export default function Layout() {
       window.removeEventListener("pointerdown", onPointerDown);
     };
   }, []);
+
+  const signOut = async () => {
+    setAccountOpen(false);
+    await logout();
+    nav("/login");
+  };
 
   const sidebar = (
     <div className={cn("flex h-full flex-col overflow-y-auto border-r px-4 py-6", isDarkWorkspace ? "border-white/10 bg-[linear-gradient(180deg,#082D68_0%,#0756A6_100%)] text-white" : "border-border bg-white")}>
@@ -233,9 +242,18 @@ export default function Layout() {
           <div className="flex shrink-0 items-center gap-2 sm:gap-3" aria-label="Tài khoản hiện tại">
             <Link to="/exams" aria-label={reviewTotal ? `${reviewTotal} bài cần xem lại` : "Kỳ thi"} className="relative flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 hover:bg-primary-softer hover:text-primary-hover"><Bell className="h-5 w-5" />{reviewTotal > 0 && <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full border-2 border-white bg-warning" />}</Link>
             <span className="mx-1 hidden h-8 w-px bg-border sm:block" />
-            <div className="hidden text-right sm:block"><p className="max-w-48 truncate text-[14px] font-semibold text-navy">{user?.full_name || user?.username}</p><p className="text-[13px] text-slate-500">{user?.role === "admin" ? "Quản trị viên" : "Giáo viên"}</p></div>
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-soft text-base font-semibold text-primary-hover">{(user?.full_name || user?.username || "U").charAt(0).toUpperCase()}</span>
-            <ChevronDown className="hidden h-4 w-4 text-slate-500 sm:block" />
+            <div ref={accountMenuRef} className="relative">
+              <button type="button" aria-haspopup="menu" aria-expanded={accountOpen} aria-label="Mở menu tài khoản" onClick={() => setAccountOpen((open) => !open)} className="flex items-center gap-2 rounded-xl px-1.5 py-1 text-left transition-colors hover:bg-primary-softer focus-visible:outline-2 focus-visible:outline-primary sm:gap-3">
+                <span className="hidden text-right sm:block"><span className="block max-w-48 truncate text-[14px] font-semibold text-navy">{user?.full_name || user?.username}</span><span className="block text-[13px] text-slate-500">{user?.role === "admin" ? "Quản trị viên" : "Giáo viên"}</span></span>
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-soft text-base font-semibold text-primary-hover">{(user?.full_name || user?.username || "U").charAt(0).toUpperCase()}</span>
+                <ChevronDown className={cn("h-4 w-4 text-slate-500 transition-transform", accountOpen && "rotate-180")} />
+              </button>
+              {accountOpen && <div role="menu" aria-label="Menu tài khoản" className="absolute right-0 top-[calc(100%+10px)] z-50 w-64 overflow-hidden rounded-xl border border-border bg-white py-1.5 shadow-md">
+                <div className="border-b border-border px-4 py-3"><p className="truncate text-[14px] font-semibold text-navy">{user?.full_name || user?.username}</p><p className="truncate text-[12px] text-slate-500">{user?.username} · {user?.role === "admin" ? "Quản trị viên" : "Giáo viên"}</p></div>
+                <button type="button" role="menuitem" onClick={() => { setAccountOpen(false); setPwOpen(true); }} className="flex min-h-11 w-full items-center gap-3 px-4 text-left text-[14px] font-medium text-slate-700 hover:bg-primary-softer hover:text-primary-hover"><KeyRound className="h-[17px] w-[17px]" />Đổi mật khẩu</button>
+                <button type="button" role="menuitem" onClick={() => void signOut()} className="flex min-h-11 w-full items-center gap-3 px-4 text-left text-[14px] font-medium text-danger hover:bg-danger-soft"><LogOut className="h-[17px] w-[17px]" />Đăng xuất</button>
+              </div>}
+            </div>
           </div>
         </header>
         <main className="min-w-0 flex-1 overflow-y-auto bg-surface">
