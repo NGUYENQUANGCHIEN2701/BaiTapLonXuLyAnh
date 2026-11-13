@@ -128,7 +128,6 @@ export default function Login() {
             {error && <p role="alert" className="rounded-lg border-l-4 border-danger bg-danger-soft p-3 text-[14px] text-text">{error}</p>}
             <Button type="submit" size="lg" icon={<LogIn />} className="mt-1 h-[58px] w-full justify-center rounded-xl" loading={busy}>Đăng nhập</Button>
           </div>
-          <p className="mt-6 text-center text-[14px] text-slate-600">Tài khoản mặc định: <span className="font-semibold text-primary-hover">admin / admin123</span></p>
         </form>
 
         <p className="mx-auto flex w-full max-w-[585px] items-center justify-center gap-3 text-center text-[13px] text-slate-600 sm:justify-start"><GraduationCap className="h-5 w-5 text-primary-hover" /><span className="font-semibold text-navy">OMR Exam</span><span aria-hidden className="h-4 w-px bg-border" />Giải pháp chấm thi trắc nghiệm tự động</p>
