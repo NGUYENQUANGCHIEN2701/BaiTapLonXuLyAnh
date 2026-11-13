@@ -8,7 +8,11 @@ import { cn } from "../../lib/utils";
 import { Button, useConfirm } from "../ui";
 
 const ChatMarkdown = lazy(() => import("./ChatMarkdown"));
-const SUGGESTIONS = ["Hướng dẫn tạo kỳ thi", "Cách nhập đáp án", "Vì sao bài cần duyệt?", "Giải thích quy trình xử lý ảnh"];
+const SUGGESTIONS = [
+  "Vì sao tổng ba góc trong một tam giác bằng 180°? Hãy giải thích dễ hiểu và cho ví dụ minh họa.",
+  "Tế bào là gì? Vì sao tế bào được coi là đơn vị cơ bản của sự sống?",
+  "Chuỗi thức ăn là gì? Hãy lấy ví dụ một chuỗi thức ăn đơn giản trong tự nhiên và giải thích vai trò của từng sinh vật.",
+];
 // randomUUID chỉ có trong secure context; hỗ trợ cả điện thoại truy cập HTTP trong LAN.
 const messageId = () => globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
@@ -170,7 +174,7 @@ export default function ChatWidget({ userId }: { userId: number }) {
                 <h3 className="font-sans text-2xl font-semibold leading-tight text-navy">Tôi có thể giúp gì<br />cho bạn hôm nay?</h3>
                 <p className="mt-3 text-[15px] leading-relaxed text-text-muted">Hỏi về cách sử dụng hệ thống, quy trình chấm thi hoặc kiến thức học tập.</p>
                 <div className="mt-6 grid gap-2">
-                  {SUGGESTIONS.map((text) => <button key={text} onClick={() => void send(text)} className="flex items-center justify-between gap-3 rounded-lg border border-border bg-white px-3 py-3 text-left text-[15px] text-text transition-colors hover:border-primary hover:bg-primary-softer hover:text-primary-hover focus-visible:outline-2">{text}<ArrowUpRight aria-hidden className="h-[18px] w-[18px] shrink-0 text-primary" /></button>)}
+                  {SUGGESTIONS.map((text) => <button key={text} onClick={() => void send(text)} className="flex items-start justify-between gap-3 rounded-lg border border-border bg-white px-3 py-3 text-left text-[15px] text-text transition-colors hover:border-primary hover:bg-primary-softer hover:text-primary-hover focus-visible:outline-2"><span className="min-w-0 flex-1 break-words">{text}</span><ArrowUpRight aria-hidden className="mt-1 h-[18px] w-[18px] shrink-0 text-primary" /></button>)}
                 </div>
               </div>
             )}
@@ -200,7 +204,7 @@ export default function ChatWidget({ userId }: { userId: number }) {
                 }} className="min-h-9 min-w-0 flex-1 resize-none bg-transparent px-1 py-2 text-[15px] leading-5 outline-none disabled:opacity-50" />
               <Button type="submit" variant="secondary" size="icon" aria-label="Gửi câu hỏi" disabled={!draft.trim() || busy || pending} className="mb-0.5 shrink-0 rounded-lg">{busy ? <Loader2 className="animate-spin" /> : <Send />}</Button>
             </form>
-            <div className="mt-2 flex items-start justify-between gap-2 text-[13px] leading-relaxed text-text-muted"><p>AI có thể trả lời sai. Hãy kiểm tra thông tin quan trọng.</p><span className="shrink-0 tabular">{draft.length}/4000</span></div>
+            <p className="mt-2 text-right text-[13px] leading-relaxed text-text-muted tabular">{draft.length}/4000</p>
           </footer>
         </section>
       )}
