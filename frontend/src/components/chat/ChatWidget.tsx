@@ -16,6 +16,17 @@ const SUGGESTIONS = [
 // randomUUID chỉ có trong secure context; hỗ trợ cả điện thoại truy cập HTTP trong LAN.
 const messageId = () => globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
+function WaitingReply() {
+  return <article role="status" aria-label="Đang trả lời…" aria-busy="true" className="space-y-2.5">
+    <div className="flex items-center gap-2 text-[14px] font-semibold text-primary-hover"><span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary-soft"><Bot className="h-4 w-4" /></span>Trợ lý AI</div>
+    <div className="rounded-2xl rounded-tl-sm border border-border bg-white px-5 py-4 shadow-sm">
+      <div className="flex items-center gap-3 text-[15px] font-semibold text-navy"><span>Đang trả lời…</span><span className="chat-thinking-dots" aria-hidden="true"><i /><i /><i /></span></div>
+      <p className="mt-1 text-[13px] leading-6 text-text-muted">Đang chuẩn bị câu trả lời cho bạn.</p>
+      <div aria-hidden="true" className="mt-4 space-y-2.5"><div className="chat-loading-line w-full" /><div className="chat-loading-line w-[85%]" /><div className="chat-loading-line w-[60%]" /></div>
+    </div>
+  </article>;
+}
+
 function Message({ message }: { message: ChatMessage }) {
   const [copied, setCopied] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -192,7 +203,7 @@ export default function ChatWidget({ userId }: { userId: number }) {
               </div>
             )}
             {messages.map((message) => <Message key={message.id} message={message} />)}
-            {busy && <div role="status" className="flex items-center gap-2 text-[13px] text-slate-500"><Loader2 className="h-4 w-4 animate-spin" />Đang trả lời…</div>}
+            {busy && <WaitingReply />}
             {!busy && pending && (
               <div role="alert" className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-[13px] leading-relaxed text-amber-800">
                 <p>{error || "Câu hỏi này chưa có câu trả lời. Bạn có thể thử gửi lại."}</p>
