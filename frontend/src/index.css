@@ -4,13 +4,13 @@
   min-width: 0;
   max-width: 100%;
   overflow-wrap: anywhere;
-  font-size: 15px;
-  line-height: 1.8;
+  font-size: 16px;
+  line-height: 1.85;
 }
 .chat-markdown > * + * { margin-top: 0.85rem; }
 .chat-markdown > :first-child { margin-top: 0; }
 .chat-markdown > :last-child { margin-bottom: 0; }
-.chat-markdown strong { font-weight: 600; color: var(--color-slate-900); }
+.chat-markdown strong { font-weight: 700; color: var(--color-navy); }
 .chat-markdown h1, .chat-markdown h2, .chat-markdown h3,
 .chat-markdown h4, .chat-markdown h5, .chat-markdown h6 {
   margin-top: 1.25rem;
@@ -52,7 +52,7 @@
   tab-size: 2;
 }
 .chat-markdown code { font-family: var(--font-sans); font-size: 0.86em; }
-.chat-markdown pre code { font-size: 12px; overflow-wrap: normal; }
+.chat-markdown pre code { font-size: 14px; overflow-wrap: normal; }
 .chat-markdown :not(pre) > code {
   border: 1px solid var(--color-slate-200);
   border-radius: 5px;
@@ -60,7 +60,7 @@
   background: var(--color-slate-100);
 }
 .chat-markdown-table { max-width: 100%; overflow-x: auto; border: 1px solid var(--color-slate-200); border-radius: 10px; }
-.chat-markdown table { width: 100%; border-collapse: collapse; font-size: 12px; line-height: 1.65; }
+.chat-markdown table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 1.7; }
 .chat-markdown th, .chat-markdown td { padding: 0.6rem 0.75rem; text-align: left; vertical-align: top; }
 .chat-markdown th { background: var(--color-slate-100); color: var(--color-slate-900); font-weight: 600; }
 .chat-markdown tr + tr, .chat-markdown tbody tr:first-child { border-top: 1px solid var(--color-slate-200); }

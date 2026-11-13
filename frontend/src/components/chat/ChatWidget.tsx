@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { ArrowUpRight, Bot, Check, Copy, Loader2, MessageCircle, Plus, RotateCw, Send, X } from "lucide-react";
+import { ArrowUpRight, Bot, Check, Copy, Loader2, Maximize2, MessageCircle, Minimize2, Plus, RotateCw, Send, UserRound, X } from "lucide-react";
 import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties } from "react";
 import { toast } from "sonner";
 import { api, errMsg } from "../../lib/api";
@@ -21,11 +21,14 @@ function Message({ message }: { message: ChatMessage }) {
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   useEffect(() => () => clearTimeout(timer.current), []);
   return (
-    <div className={cn("flex flex-col items-start gap-1.5", message.role === "user" && "items-end")}>
-      <span className="px-1 text-[13px] font-medium text-slate-500">{message.role === "user" ? "Bạn" : "Trợ lý AI"}</span>
-      <div className={cn("max-w-full rounded-xl px-4 py-3 text-[15px] leading-relaxed", message.role === "user"
-        ? "max-w-[90%] whitespace-pre-wrap break-words rounded-tr-sm bg-primary-soft text-text"
-        : "w-full rounded-tl-sm border border-slate-200 bg-white text-slate-800")}>
+    <article data-chat-role={message.role} className={cn("flex min-w-0 flex-col gap-2.5", message.role === "user" ? "items-end" : "items-start")}>
+      <div className={cn("flex items-center gap-2 text-[14px] font-semibold", message.role === "user" ? "text-slate-600" : "text-primary-hover")}>
+        {message.role === "user" ? <UserRound className="h-4 w-4" /> : <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary-soft"><Bot className="h-4 w-4" /></span>}
+        {message.role === "user" ? "Bạn" : "Trợ lý AI"}
+      </div>
+      <div className={cn("rounded-2xl px-5 py-4 text-[16px] leading-[1.85]", message.role === "user"
+        ? "max-w-[90%] whitespace-pre-wrap break-words rounded-tr-sm bg-primary-hover text-white"
+        : "w-full max-w-full rounded-tl-sm border border-border bg-white text-text shadow-sm")}>
         {message.role === "user" ? message.content : (
           <div className="chat-markdown">
             <Suspense fallback={<div className="whitespace-pre-wrap">{message.content}</div>}>
@@ -36,7 +39,7 @@ function Message({ message }: { message: ChatMessage }) {
         {message.truncated && <p className="mt-3 border-t border-slate-200 pt-2 text-[13px] text-slate-500">Câu trả lời đã đạt giới hạn độ dài. Bạn có thể yêu cầu giải thích tiếp.</p>}
       </div>
       {message.role === "assistant" && (
-        <button className="inline-flex items-center gap-1 rounded px-1.5 py-1 text-[13px] text-slate-500 hover:bg-primary-softer focus-visible:outline-2" onClick={async () => {
+        <button className="inline-flex min-h-9 items-center gap-2 rounded-lg px-2 py-1 text-[13px] font-medium text-slate-600 hover:bg-primary-soft hover:text-primary-hover focus-visible:outline-2" onClick={async () => {
           try {
             await navigator.clipboard.writeText(message.content);
             setCopied(true);
@@ -44,15 +47,16 @@ function Message({ message }: { message: ChatMessage }) {
             timer.current = setTimeout(() => setCopied(false), 2000);
           } catch { toast.error("Không thể sao chép. Bạn có thể chọn nội dung để sao chép thủ công."); }
         }} aria-label="Sao chép câu trả lời">
-          {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}{copied ? "Đã sao chép" : "Sao chép"}
+          {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}{copied ? "Đã sao chép" : "Sao chép"}
         </button>
       )}
-    </div>
+    </article>
   );
 }
 
 export default function ChatWidget({ userId }: { userId: number }) {
   const [open, setOpen] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>(() => loadChatHistory(userId));
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
@@ -97,7 +101,13 @@ export default function ChatWidget({ userId }: { userId: number }) {
     };
   }, [open]);
   useEffect(() => {
-    if (log.current) log.current.scrollTop = log.current.scrollHeight;
+    const container = log.current;
+    if (!container || !open) return;
+    const lastReply = container.querySelector<HTMLElement>('[data-chat-role="assistant"]:last-of-type');
+    if (messages.at(-1)?.role === "assistant" && lastReply) {
+      // Show the start of a long answer so the reader can follow it from the beginning.
+      container.scrollTop += lastReply.getBoundingClientRect().top - container.getBoundingClientRect().top - 20;
+    } else container.scrollTop = container.scrollHeight;
   }, [messages, busy, error, open]);
   useEffect(() => {
     if (input.current) {
@@ -153,8 +163,10 @@ export default function ChatWidget({ userId }: { userId: number }) {
       </button>
       {open && (
         <section id="omr-chat" role="dialog" aria-label="Trợ lý AI OMR Exam" style={mobileStyle}
-          className="fixed inset-x-2 bottom-2 z-40 flex h-[calc(100dvh-1rem)] flex-col overflow-hidden rounded-2xl border border-slate-300 bg-paper shadow-sm sm:inset-x-auto sm:bottom-20 sm:right-6 sm:h-[min(700px,calc(100dvh-7rem))] sm:w-[430px]">
-          <header className="flex shrink-0 items-center gap-2.5 border-b border-slate-200 bg-white px-4 py-3">
+          className={cn("fixed inset-x-2 bottom-2 z-40 flex h-[calc(100dvh-1rem)] flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-md sm:inset-x-auto sm:right-6", expanded
+            ? "sm:bottom-6 sm:h-[calc(100dvh-3rem)] sm:w-[min(900px,calc(100vw-3rem))]"
+            : "sm:bottom-20 sm:h-[min(780px,calc(100dvh-7rem))] sm:w-[min(520px,calc(100vw-3rem))]")}>
+          <header className="flex shrink-0 items-center gap-2.5 border-b border-border bg-white px-4 py-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary"><Bot className="h-5 w-5" /></div>
             <div className="min-w-0 flex-1">
               <h2 className="font-sans text-lg font-semibold">Trợ lý AI</h2>
@@ -164,10 +176,11 @@ export default function ChatWidget({ userId }: { userId: number }) {
               </p>
             </div>
             <Button size="icon" variant="ghost" title="Hội thoại mới" aria-label="Hội thoại mới" onClick={newConversation}><Plus /></Button>
+            <div className="hidden sm:block"><Button size="icon" variant="ghost" title={expanded ? "Thu nhỏ khung chat" : "Phóng to khung chat"} aria-label={expanded ? "Thu nhỏ khung chat" : "Phóng to khung chat"} aria-pressed={expanded} onClick={() => setExpanded((value) => !value)}>{expanded ? <Minimize2 /> : <Maximize2 />}</Button></div>
             <Button size="icon" variant="ghost" title="Đóng chatbot" aria-label="Đóng chatbot" onClick={() => { setOpen(false); launcher.current?.focus(); }}><X /></Button>
           </header>
 
-          <div ref={log} role="log" aria-label="Cuộc trò chuyện" aria-live="polite" aria-relevant="additions" className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-4 py-5">
+          <div ref={log} role="log" aria-label="Cuộc trò chuyện" aria-live="polite" aria-relevant="additions" className="min-h-0 flex-1 space-y-7 overflow-y-auto overscroll-contain px-4 py-5 sm:px-5">
             {!messages.length && (
               <div className="py-5">
                 <p className="mb-2 text-[13px] font-semibold text-primary-hover">OMR Exam · Trợ lý học tập</p>
@@ -201,7 +214,7 @@ export default function ChatWidget({ userId }: { userId: number }) {
                 disabled={busy || pending} aria-label="Nội dung câu hỏi" placeholder="Nhập câu hỏi của bạn…"
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); void send(); }
-                }} className="min-h-9 min-w-0 flex-1 resize-none bg-transparent px-1 py-2 text-[15px] leading-5 outline-none disabled:opacity-50" />
+                }} className="min-h-9 min-w-0 flex-1 resize-none bg-transparent px-1 py-2 text-[16px] leading-6 outline-none disabled:opacity-50" />
               <Button type="submit" variant="secondary" size="icon" aria-label="Gửi câu hỏi" disabled={!draft.trim() || busy || pending} className="mb-0.5 shrink-0 rounded-lg">{busy ? <Loader2 className="animate-spin" /> : <Send />}</Button>
             </form>
             <p className="mt-2 text-right text-[13px] leading-relaxed text-text-muted tabular">{draft.length}/4000</p>
